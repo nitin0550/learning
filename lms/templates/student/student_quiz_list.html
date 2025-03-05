@@ -1,0 +1,117 @@
+<!-- student/templates/student/student_quiz_list.html -->
+{% extends 'student/base.html' %}
+{% load student_filters %}
+{% block main_head %}
+<style>
+.quiz-card {
+    background: #f8f8f8;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.quiz-duration {
+    color: #007bff;
+    font-weight: 500;
+}
+
+.start-quiz-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    background: #28a745;
+    color: white;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+.completed {
+    background: #6c757d;
+}
+.status-complete {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.status-pending {
+    color: #ffc107;
+    font-weight: bold;
+}
+
+.score {
+    color: #007bff;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.completed-quiz {
+    border-left: 4px solid #28a745;
+}
+
+.assignment{
+            
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+</style>
+{% endblock %}
+
+{% block main_body %}
+<div class="mobile-header">
+    <div class="logo">My Courses</div>
+    <nav>
+        <a href="#"><i class="fas fa-eye"></i></a>
+        
+    </nav>
+</div>
+
+<div class="widget">
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+            {{ message }}
+            <button type="button" class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% if quizzes %}
+        {% for quiz in quizzes %}
+        {% with student_assignment=assignment_dict|get_item:quiz.id %}
+        <div class="quiz-card {% if student_assignment.completed %}completed-quiz{% endif %}">
+            <div class="quiz-title">{{ quiz.title }}</div>
+            <div class="quiz-info">
+                <p>Course: {{ quiz.course.course_title }}</p>
+                <p>Duration: <span class="quiz-duration">{{ quiz.duration }}</span></p>
+                {% if student_assignment %}
+                    <p>Date: {{ student_assignment.due_date|date:"F d, Y H:i" }}</p>
+                    <p>Status: 
+                        {% if student_assignment.completed %}
+                            <span class="status-complete">Completed</span>
+                            <br>
+                            <span class="score">Your Score: {{ student_assignment.score|floatformat:1 }}%</span>
+                        {% else %}
+                            <span class="status-pending">Pending</span>
+                        {% endif %}
+                    </p>
+                {% endif %}
+            </div>
+            <a href="{% url 'student_take_quiz' quiz.id %}" 
+               class="start-quiz-btn {% if student_assignment.completed %}completed{% endif %}">
+                {% if student_assignment.completed %}
+                    View Results
+                {% else %}
+                    Start Quiz
+                {% endif %}
+            </a>
+        </div>
+        {% endwith %}
+        {% endfor %}
+    {% else %}
+        <p>No quizzes assigned yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

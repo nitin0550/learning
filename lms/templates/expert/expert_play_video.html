@@ -1,0 +1,216 @@
+{% extends 'expert/base.html' %}
+{% load static %}
+{% block main_head %}
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Video Player</title>
+    <style>
+        a{
+            display: block;
+            padding: 5px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        h2 {
+            font-size: 1em;
+            flex-grow: 1;
+        }
+        .video-player {
+            position: relative;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+        }
+        .video-player .video-js {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .video-info {
+            padding: 10px;
+            flex-grow: 1;
+        }
+        .title {
+            font-size: 24px;
+            margin: 0 0 10px;
+        }
+        .description {
+            font-size: 0.8em;
+            color: #666;
+            margin: 5px 0;
+        }
+        h3 {
+            margin-top: 0;
+        }
+        .video-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px; 
+        }
+        .video-card {
+            display: flex; /* Flexbox for card layout */
+            background-color: #f9f9f9; /* Light gray background */
+            border-radius: 5px; /* Rounded corners */
+            overflow: hidden; /* Clip overflow */
+            position: relative; /* For positioning dropdown */
+        }
+        .thumbnail {
+            width: 120px; /* Smaller fixed width for thumbnails */
+            height: auto; /* Maintain aspect ratio */
+            border-radius: 5px;
+        }
+        .video-title {
+            font-size: 16px;
+            margin: 0;
+        }
+        @media (max-width: 600px) {
+        .widget {
+            margin-top: 0;
+        }
+    }
+    .play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 35px;
+    cursor: pointer;
+    z-index: 10;
+}
+    </style>
+
+{% endblock main_head %}
+{% block main_body %}
+
+
+
+<div class="widget">
+    <div class="video-player">
+        <video id="videoPlayer" 
+               class="video-js vjs-default-skin" 
+               controls 
+               preload="auto" 
+               poster="{% if lesson.thumbnail %}{{ lesson.thumbnail.url }}{% endif %}"
+               width="100%" 
+               height="auto">
+            <!-- Primary HLS source -->
+            <source src="{{ hls_path|safe }}" type="application/vnd.apple.mpegurl">
+            Your browser does not support HTML5 video.
+        </video>
+        <button id="playButton" class="play-button"><i class="fas fa-play"></i></button>
+        
+    </div>
+    <div class="video-info">
+        <h1 class="title">{{ lesson.lesson_title }}</h1>
+        <p class="description">{{ lesson.description }}</p>
+    </div>
+</div>
+<div class="widget">
+    <div class="video-list">
+        {% for video in recommended_videos %}
+            <div class="video-card">
+                <a href="{% url 'expert_play_video' video.id %}">
+                    {% if video.thumbnail %}
+                        <img src="{{ video.thumbnail.url }}" alt="{{ video.title }}" class="thumbnail">
+                    {% else %}
+                        <img src="{% static 'images/default-thumbnail.png' %}" alt="Default thumbnail" class="thumbnail">
+                    {% endif %}
+                </a>
+                <div class="video-info">
+                    <a href="{% url 'expert_play_video' video.id %}">
+                        <h2>{{ video.lesson_title }}</h2>
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
+<link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const video = document.getElementById('videoPlayer');
+        const playButton = document.getElementById('playButton');
+        const hlsPath = "{{ hls_path|escapejs }}";
+        
+        playButton.addEventListener('click', function() {
+            playButton.style.display = 'none';
+            
+            if (Hls.isSupported()) {
+                const hls = new Hls({
+                    // Critical configuration - don't modify absolute URLs
+                    // This ensures signed URLs work properly
+                    xhrSetup: function(xhr, url) {
+                        xhr.withCredentials = false;
+                        console.log('Loading URL:', url);
+                    },
+                    // Use cors mode for all requests
+                    fetchSetup: function(context, initParams) {
+                        return new Request(context.url, {
+                            ...initParams,
+                            mode: 'cors',
+                            credentials: 'omit'
+                        });
+                    }
+                });
+                
+                hls.loadSource(hlsPath);
+                hls.attachMedia(video);
+                
+                // Add specific error handlers
+                hls.on(Hls.Events.ERROR, function(event, data) {
+                    console.error('HLS error type:', data.type);
+                    console.error('HLS error details:', data.details);
+                    
+                    if (data.fatal) {
+                        switch(data.type) {
+                            case Hls.ErrorTypes.NETWORK_ERROR:
+                                console.log('Network error, trying to recover');
+                                hls.startLoad();
+                                break;
+                            case Hls.ErrorTypes.MEDIA_ERROR:
+                                console.log('Media error, trying to recover');
+                                hls.recoverMediaError();
+                                break;
+                            default:
+                                console.error('Fatal error, destroying player');
+                                hls.destroy();
+                                break;
+                        }
+                    }
+                });
+                
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    video.play().catch(function(error) {
+                        console.error('Play failed:', error);
+                    });
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                // For Safari on iOS
+                video.src = hlsPath;
+                video.addEventListener('loadedmetadata', function() {
+                    video.play();
+                });
+            } else {
+                console.error('HLS is not supported on this browser.');
+            }
+        });
+    });
+    </script>
+
+{% endblock main_body %}

@@ -1,0 +1,6 @@
+media/expert/
+media/student/
+media/chat_files/
+*.sqlite3
+migration/
+__pycache__/

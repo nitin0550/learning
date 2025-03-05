@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Take Quiz</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
+</head>
+<body>
+
+<header>
+    <div class="logo">LMS Logo</div>
+    <nav>
+        <ul>
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Courses</a></li>
+            <li><a href="#">Quizzes</a></li>
+            <li><a href="#">Profile</a></li>
+            <li><a href="#">Logout</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main>
+    <h1>Take Quiz: <span id="quiz-title">Quiz Title</span></h1>
+
+    <form id="quiz-form">
+        <div id="question-container">
+            <!-- Questions will be dynamically added here -->
+        </div>
+        <button type="submit" class="action-button">Submit Answers</button>
+    </form>
+
+    <div id="result-message"></div>
+</main>
+
+<footer>
+    <p>&copy; 2024 Learning Management System</p>
+    <ul>
+        <li><a href="#">Help Center</a></li>
+        <li><a href="#">Terms of Service</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+    </ul>
+</footer>
+
+<script src="quiz.js"></script> <!-- Link to your JavaScript file -->
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Room</title>
+    <style>
+        /* Add basic styling */
+        #messages {
+            border: 1px solid #ccc;
+            height: 400px;
+            overflow-y: scroll;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chat Room: {{ room_name }}</h1>
+    <div id="messages"></div>
+    <input id="messageInput" type="text" size="100">
+    <button id="sendMessage">Send</button>
+
+    <script>
+        const roomName = "{{ room_name }}";
+        const chatSocket = new WebSocket(
+            'ws://' + window.location.host + '/ws/chat/' + roomName + '/'
+        );
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+
+            document.querySelector('#messages').innerHTML += `<p><strong>${data.user}:</strong> ${data.message}</p>`;
+        };
+
+        document.querySelector('#sendMessage').onclick = function(e) {
+            const messageInputDom = document.querySelector('#messageInput');
+            chatSocket.send(JSON.stringify({
+                'message': messageInputDom.value
+            }));
+            messageInputDom.value = '';
+        };
+        setInterval(() => {
+            chatSocket.send(JSON.stringify({ 'ping': true }));
+        }, 30000); // Sends a ping every 30 seconds
+
+    </script>
+</body>
+</html>

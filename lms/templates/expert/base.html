@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+    {% block main_head %}
+	{% endblock main_head %}
+    <style>
+        .widget{
+        margin-top: 0;
+    }
+    </style>
+
+</head>
+<body>
+    
+    <div class="container">
+        <div class="sidebar">
+            <h2>Navigation</h2>
+            <a href="{% url 'expert_dashboard' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="{% url 'expert_chat' %}"><i class="fas fa-comments"></i> Communication
+                {% if has_unread_messages_expert %}
+                <span class="notification-dot"></span>
+                {% endif %}
+            </a>
+            <a href="{% url 'expert_my_courses' %}"><i class="fas fa-book"></i> My Courses</a>
+            <a href="{% url 'expert_quiz_list' %}"><i class="fas fa-question-circle"></i> Quizzes</a>
+            <a href="{% url 'expert_assignment' %}"><i class="fas fa-pencil-alt"></i> Assignments</a>
+            <a href="{% url 'expert_view_result_list' %}"><i class="fas fa-chart-line"></i> Reports</a>
+            <a href="{% url 'expert_learning_resources' %}"><i class="fas fa-file-alt"></i> Resources</a>
+            <a href="{% url 'expert_notifications' %}">
+                <i class="fas fa-bell"></i>  Notifications
+                {% if has_unread_notifications_expert %}
+                <span class="notification-dot"></span>
+                {% endif %}
+            </a>
+            <a href="{% url 'expert_student_management' %}"><i class="fas fa-users"></i> Student Management</a>
+            <a href="{% url 'selles_dashboard' %}"><i class="fas fa-wallet"></i> Selles</a>
+            <a href="{% url 'expert_profile' %}"><i class="fas fa-user"></i> Profile</a>
+        </div>
+
+        <div class="main">
+            {% block main_body %}
+            {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+		    {% endblock main_body %}
+        </div>
+    </div>
+    <div class="icon-sidebar">
+        <a href="{% url 'expert_dashboard' %}"><i class="fas fa-tachometer-alt"></i></a>
+        <a href="{% url 'expert_chat' %}"><i class="fas fa-comments"></i>
+            {% if has_unread_messages_expert %}
+            <span class="notification-dot"></span>
+            {% endif %}
+        </a>
+        <!--<a href="{% url 'expert_my_courses' %}"><i class="fas fa-book"></i></a>-->
+        <!--<a href="{% url 'expert_learning_resources' %}"><i class="fas fa-file-alt"></i></a>-->
+        <a href="{% url 'expert_notifications' %}"><i class="fas fa-bell"></i>
+            {% if has_unread_notifications_expert %}
+            <span class="notification-dot"></span>
+            {% endif %}
+        </a>
+        <!-- <a href="{% url 'expert_assignment' %}"><i class="fas fa-pencil-alt"></i></a>-->
+        <a href="{% url 'expert_view_result_list' %}"><i class="fas fa-chart-line"></i></a>
+
+        <a href="{% url 'expert_profile' %}">
+            {% if user.expertprofile.profile_picture %}
+            <img src="{{ user.expertprofile.profile_picture.url }}" class="profile-pic" alt="Profile Picture">
+            {% else %}
+                <img src="{% static 'images/default-profile.png' %}" alt="Profile Picture" class="profile-pic" onclick="openProfile()" />
+            {% endif %}
+        </a>
+    </div>
+    <script src="{% static 'js/scripts.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!-- templates/expert/student_quiz_details.html -->
+{% extends 'expert/base.html' %}
+{% load static %}
+
+{% block main_head %}
+<style>
+    
+    .card {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-bottom: 1.5rem;
+    }
+    
+    .card-header {
+        padding: 0 1rem;
+        background-color: #1f1e1ee3;
+        color: white;
+    }
+    
+    .card-header.question-header {
+        background-color: #f8f9fa;
+        color: #333;
+    }
+    
+    .card-body {
+        padding: 1.25rem;
+    }
+    
+    .back-button {
+        padding: 0.375rem 0.75rem;
+        background-color: rgba(255, 255, 255, 0);
+        color: #ffffff;
+        border-radius: 4px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .student-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    
+    .badge {
+        padding: 0.5em 1em;
+        border-radius: 4px;
+        font-size: 0.875rem;
+    }
+    
+    .badge-success {
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .badge-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .question-container {
+        margin-bottom: 2rem;
+    }
+    
+    .answer-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    
+    .answer-box {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 4px;
+    }
+    
+    .alert {
+        padding: 1.5rem;
+        text-align: center;
+        background-color: #cce5ff;
+        border: 1px solid #b8daff;
+        border-radius: 4px;
+    }
+    
+    @media (max-width: 768px) {
+        .widget {
+            padding: 0;
+        }
+        .student-info,
+        .answer-grid {
+            grid-template-columns: 1fr;
+        }
+        .card-header {
+            padding: 0.75rem;
+        }
+
+        .card-body {
+            padding: 1rem;
+        }
+
+        h2 {
+            font-size: 1.25rem;
+        }
+
+        .student-info {
+            gap: 1rem;
+        }
+    }
+</style>
+{% endblock main_head %}
+
+{% block main_body %}
+<div class="widget">
+    <div class="card">
+        <div class="card-header">
+            <div class="header-content">
+                <a href="{% url 'expert_view_quiz_results' quiz_id=quiz.id %}" class="back-button">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h2>{{ quiz.title }} - Student Results</h2>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="student-info">
+                <div>
+                    <p><strong>Name:</strong> {{ student.username }}</p>
+                    <p><strong>Completed On:</strong> {{ assignment.completed_date|date:"M d, Y H:i" }}</p>
+                </div>
+                <div>
+                    <p><strong>Status:</strong> 
+                        {{ assignment.score|floatformat:1 }}%
+                        <span class="badge {% if assignment.score >= quiz.passing_score %}badge-success{% else %}badge-danger{% endif %}">
+                            {% if assignment.score >= quiz.passing_score %}Passed{% else %}Failed{% endif %}
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                {% for answer in student_answers %}
+                <div class="question-container">
+                    <div class="card">
+                        <div class="card-header question-header">
+                            <div class="header-content">
+                                <h6>Question {{ forloop.counter }}</h6>
+                                <span class="badge {% if answer.is_correct %}badge-success{% else %}badge-danger{% endif %}">
+                                    {% if answer.is_correct %}Correct{% else %}Incorrect{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="question-text">
+                                {{ answer.question.question_text|linebreaks }}
+                            </div>
+                            <div class="answer-grid">
+                                <div class="answer-box">
+                                    <h6>Student's Answer:</h6>
+                                    <p>{{ answer.student_answer }}</p>
+                                </div>
+                                <div class="answer-box">
+                                    <h6>Correct Answer:</h6>
+                                    <p>{{ answer.question.correct_answer }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="alert">
+                    <i class="fas fa-info-circle fa-2x"></i>
+                    <h5>No Response Data Available</h5>
+                    <p>There are no recorded answers for this quiz attempt.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main_body %}

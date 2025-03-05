@@ -1,0 +1,53 @@
+{% extends 'expert/base.html' %}
+{% load static %}
+{% block main_head %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Search Page</title>
+    <link rel="stylesheet" href="{% static 'expert/css/expert_learning_resources.css' %}">
+    {% endblock main_head %}
+    {% block main_body %}
+    <div class="widget">
+        <header>
+            <h1>Find Your Courses</h1>
+            <p>Search for courses, assignments, and quizzes.</p>
+        </header>
+        <header>
+            <form class="search-container" method="GET" action="">
+                <input id="search" type="text" name="q" placeholder="Search courses..." value="{{ query|default:'' }}" class="search">
+                <button class="action-button" type="submit">Search</button>
+            </form>
+        </header>
+        <div class="results">
+            <div class="card">
+                <img src="https://www.questpond.com/img/2.png" alt="Course Image" class="card-image" />
+                <h3>Courses</h3>
+                <p>Overview of the course.</p>
+                <div class="card-buttons">
+                    <button class="card-button" onclick="viewCourse(event)">View Course</button>
+                    <button class="card-action-button" onclick="addCourse(event)">Add Course</button>
+                </div>
+            </div>
+            <div class="card">
+                <img src="https://i0.wp.com/iserotope.com/wp-content/uploads/2014/02/8151789_orig.png" alt="Assignment Image" class="card-image" />
+                <h3>Assignmens</h3>
+                <p>Details for the assignment.</p>
+                <div class="card-buttons">
+                    <button class="card-button" onclick="Assignment(event)">Assignments</button>
+                </div>
+            </div>
+            <div class="card">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0pKCWC5ZdFE8YbTwmIFrXSjTe8c8ha4v46w&s" alt="Quiz Image" class="card-image" />
+                <h3>Quiz</h3>
+                <p>Topics covered in the quiz.</p>
+                <div class="card-buttons">
+                    <button class="card-button" onclick="viewQuiz(event)">View Quiz</button>
+                    <button class="card-action-button" onclick="addQuiz(event)">Add Quiz</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'expert/js/expert_learning_resources.js' %}"></script>
+    {% endblock main_body %}
+    

@@ -1,0 +1,157 @@
+
+{% extends 'student/base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block main_head %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/chating.css' %}">
+    <title>Chat with {{ other_user.username }}</title>
+    <style>
+        .chat-image, .chat-video {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-top: 5px;
+        }
+
+        @media (min-width: 768px) {
+            .chat-image, .chat-video {
+                height: 280px;
+            }
+        }
+    </style>
+{% endblock main_head %}
+{% block main_body %}
+    <div class="widget">
+        <div class="chat-header">
+            <button class="close-button" onclick="closeChat()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            Chat with {{ other_user.username }}
+        </div>
+        <div id="chat-box" class="chat-box">
+            {% with current_date=None %}
+            {% for message in messages %}
+
+            {% with message_date=message.timestamp|date:"Y-m-d" %}
+                {% ifchanged message_date %}
+                    <div class="date-separator">
+                        <span>
+                        {% if message.timestamp|date:"Y-m-d" == today|date:"Y-m-d" %}
+                            Today
+                        {% elif message.timestamp|date:"Y-m-d" == yesterday|date:"Y-m-d" %}
+                            Yesterday
+                        {% else %}
+                            {{ message.timestamp|date:"F j, Y" }}
+                        {% endif %}
+                        </span>
+                    </div>
+                    {% with current_date=message_date %}{% endwith %}
+                    {% endifchanged %}
+            {% endwith %}
+
+                <div class="message {% if message.sender == request.user %}sender{% else %}receiver{% endif %}">
+                    <div> {{ message.content }}</div>
+                    {% if message.file %}
+                        <div class="message-file">
+                            {% if message.file.url|endswith:".jpg" or message.file.url|endswith:".jpeg" or message.file.url|endswith:".png" %}
+                                <img src="{{ message.file.url }}" alt="{{ message.file.name }}" class="chat-image">
+                            {% elif message.file.url|endswith:".mp4" or message.file.url|endswith:".webm" %}
+                                <video controls class="chat-video">
+                                    <source src="{{ message.file.url }}" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                            {% else %}
+                                <a href="{{ message.file.url }}" target="_blank">{{ message.file.name }}</a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    <div class="message-time">
+                        {{ message.timestamp|date:"g:i A" }}
+                    </div>
+                </div>
+            {% endfor %}
+            {% endwith %}
+        </div>
+        <div class="chat-footer">
+            <input id="message-input" class="message-input" type="text" placeholder="Type a message...">
+            <button id="send-button" class="send-button">Send</button>
+        </div>
+    </div>
+<script>
+
+    const chatBox = document.getElementById('chat-box');
+    chatBox.scrollTop = chatBox.scrollHeight;
+    
+    const userId = "{{ other_user.id }}";
+    const chatSocket = new WebSocket(
+        'ws://' + window.location.host + '/ws/chat/' + userId + '/'
+    );
+    
+    
+
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        if (data.type === 'chat_message') {
+            displayMessage(data.message, data.sender, data.timestamp);
+        }
+    };
+
+    document.getElementById('send-button').onclick = function() {
+        const messageInput = document.getElementById('message-input');
+        const message = messageInput.value.trim();
+            if (message) {
+                const timestamp = new Date().toISOString();
+                chatSocket.send(JSON.stringify({ 'message': message, 'timestamp': timestamp }));
+                messageInput.value = '';  // Clear input after sending
+            }
+    };
+
+    // Get the message input element
+    const messageInput = document.getElementById('message-input');
+    
+    // Add keypress event listener
+    messageInput.addEventListener('keypress', function(event) {
+        // Check if the pressed key is Enter
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Prevent default form submission
+            const message = messageInput.value.trim();
+            if (message) {
+                const timestamp = new Date().toISOString();
+                chatSocket.send(JSON.stringify({ 'message': message, 'timestamp': timestamp }));
+                messageInput.value = ''; // Clear input after sending
+            }
+        }
+    });
+
+    // Function to display a message in the chat area
+    function displayMessage(message, sender, timestamp) {
+        //const chatBox = document.getElementById('chat-box');
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message');
+        messageElement.classList.add(sender === '{{ request.user.username }}' ? 'sender' : 'receiver');
+        let date;
+        if (timestamp === undefined) {
+            date = new Date(); // Use the current date and time as a fallback
+        } else if (typeof timestamp === 'string') {
+            date = new Date(timestamp);
+        } else {
+            date = new Date(timestamp * 1000); // Assuming timestamp is in seconds
+        }
+
+        const timeString = isNaN(date.getTime()) ? 'Invalid Date' : date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        messageElement.innerHTML = `
+        <div>${message}</div>
+        <div class="message-time">${timeString}</div>
+        `;
+        //messageElement.innerText = `${sender}: ${message}`;
+        chatBox.appendChild(messageElement);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+    function closeChat() {
+    return window.location.replace("/chats")
+}
+</script>
+{% endblock main_body %}

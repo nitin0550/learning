@@ -1,0 +1,303 @@
+{% extends 'student/base.html' %}
+{% load static %}
+{% block main_head %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+    <title>Responsive Video Player</title>
+    <style>
+        a{
+            display: block;
+            padding: 5px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        h2 {
+            font-size: 1em;
+            flex-grow: 1;
+        }
+        .video-player {
+            position: relative;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            user-select: none;
+            -webkit-user-select: none;
+            overflow: hidden;
+        }
+        .video-player .video-js {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .video-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255,255,255,0.3);
+            font-size: 24px;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .video-info {
+            padding: 10px;
+            flex-grow: 1;
+        }
+        .title {
+            font-size: 24px;
+            margin: 0 0 10px;
+        }
+        .description {
+            font-size: 0.8em;
+            color: #666;
+            margin: 5px 0;
+        }
+        h3 {
+            margin-top: 0;
+        }
+        .video-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px; 
+        }
+        .video-card {
+            display: flex; /* Flexbox for card layout */
+            background-color: #f9f9f9; /* Light gray background */
+            border-radius: 5px; /* Rounded corners */
+            overflow: hidden; /* Clip overflow */
+            position: relative; /* For positioning dropdown */
+        }
+        .thumbnail {
+            width: 120px; /* Smaller fixed width for thumbnails */
+            height: auto; /* Maintain aspect ratio */
+            border-radius: 5px;
+        }
+        .video-title {
+            font-size: 16px;
+            margin: 0;
+        }
+        @media (max-width: 768px) {
+        .widget {
+            margin-top: 0;
+        }
+    }
+    .play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 35px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.vjs-quality-selector {
+    margin-right: 1em;
+}
+    </style>
+{% endblock main_head %}
+{% block main_body %}
+    
+    <div class="widget">
+        <div class="video-player">
+            <div class="video-watermark">{{ request.user.username }}</div>
+            <video id="videoPlayer" 
+                    class="video-js vjs-default-skin" 
+                    controls 
+                    preload="auto" 
+                    poster="{% if lessons.thumbnail %}{{ lessons.thumbnail.url }}{% endif %}"
+                    width="100%" 
+                    height="auto">
+                <!-- Primary HLS source -->
+                <source src="{{ hls_path }}" type="application/x-mpegURL">
+                Your browser does not support HTML5 video.
+            </video>
+            <button id="playButton" class="play-button"><i class="fas fa-play"></i></button>
+        </div>
+
+        <div class="video-info">
+            <h1 class="title">{{ lessons.lesson_title }}</h1>
+            <p class="description">{{ lessons.description }}</p>
+        </div>
+    </div>
+    <div class="widget">
+        <div class="video-list">
+            {% for video in recommended_videos %}
+                <div class="video-card">
+                    <a href="{% url 'student_play_video' video.id %}">
+                        <img src="{% if video.thumbnail %}{{ video.thumbnail.url }}{% else %}{% static 'images/default-thumbnail.png' %}{% endif %}" alt="{{ video.title }}" class="thumbnail">
+                    </a>
+                    <div class="video-info">
+                        <a href="{% url 'student_play_video' video.id %}">
+                            <h2>{{ video.lesson_title }}</h2>
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <!-- Add Video.js and HLS support -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
+    <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const video = document.getElementById('videoPlayer');
+            //const playButton = document.getElementById('playButton');
+            //const loadingIndicator = document.getElementById('loadingIndicator');
+            const hlsPath = "{{ hls_path }}";
+        playButton.addEventListener('click', function() {
+            playButton.style.display = 'none';
+            if ('MediaSource' in window && Hls.isSupported()) {
+            const mediaSource = new MediaSource();
+            video.src = URL.createObjectURL(mediaSource);
+
+            mediaSource.addEventListener('sourceopen', function() {
+                const hls = new Hls();
+                hls.loadSource(hlsPath);
+                hls.attachMedia(video);
+
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    video.play();
+                });
+
+                hls.on(Hls.Events.FRAG_LOADED, function(event, data) {
+                    const sourceBuffer = mediaSource.addSourceBuffer('video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
+                    sourceBuffer.appendBuffer(data.payload);
+                });
+            });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = hlsPath;
+            video.addEventListener('loadedmetadata', function() {
+                video.play();
+            });
+        } else {
+            console.error('HLS is not supported on this browser.');
+        }
+    
+
+            
+            //let hlsPlayer = null;
+            //playButton.addEventListener('click', function() {
+            //    playButton.style.display = 'none';
+            //    initializePlayer();
+            //});
+            //// Debug logging
+            ////console.log('Video element:', video);
+            ////console.log('HLS path:', hlsPath);
+        //
+            //function initializePlayer() {
+            //    if (!hlsPath) {
+            //        console.error('HLS path is empty');
+            //        return;
+            //    }
+        //
+            //    if (Hls.isSupported()) {
+            //        hlsPlayer = new Hls({
+            //            debug: true,
+            //            enableWorker: true,
+            //            xhrSetup: function(xhr) {
+            //                xhr.withCredentials = false; // Handle CORS
+            //            },
+            //            startLevel: -1,
+            //            maxBufferLength: 30,
+            //            manifestLoadPolicy: {
+            //                default: {
+            //                    maxTimeToFirstByteMs: 20000,
+            //                    maxLoadTimeMs: 20000,
+            //                    timeoutRetry: {
+            //                        maxNumRetry: 5,
+            //                        retryDelayMs: 1000,
+            //                        maxRetryDelayMs: 0
+            //                    },
+            //                    errorRetry: {
+            //                        maxNumRetry: 5,
+            //                        retryDelayMs: 1000,
+            //                        maxRetryDelayMs: 8000
+            //                    }
+            //                }
+            //            }
+            //        });
+        //
+            //        // Monitor loading states
+            //        hlsPlayer.on(Hls.Events.MANIFEST_LOADING, function() {
+            //            console.log('Loading manifest from:', hlsPath);
+            //            //loadingIndicator.style.display = 'block';
+            //        });
+        //
+            //        hlsPlayer.on(Hls.Events.MANIFEST_LOADED, function(event, data) {
+            //            console.log('Manifest loaded:', data);
+            //        });
+        //
+            //        hlsPlayer.loadSource(hlsPath);
+            //        hlsPlayer.attachMedia(video);
+        //
+            //        hlsPlayer.on(Hls.Events.MANIFEST_PARSED, function(event, data) {
+            //            console.log('Manifest parsed, levels:', data.levels);
+            //            //loadingIndicator.style.display = 'none';
+            //            
+            //            video.play().catch(function(error) {
+            //                console.error('Play failed:', error);
+            //                showError('Playback failed - click to play');
+            //            });
+            //        });
+        //
+            //        hlsPlayer.on(Hls.Events.ERROR, function(event, data) {
+            //            console.error('HLS error:', data);
+            //            if (data.fatal) {
+            //                switch(data.type) {
+            //                    case Hls.ErrorTypes.NETWORK_ERROR:
+            //                        console.log('Network error - retrying');
+            //                        hlsPlayer.startLoad();
+            //                        break;
+            //                    case Hls.ErrorTypes.MEDIA_ERROR:
+            //                        console.log('Media error - recovering');
+            //                        hlsPlayer.recoverMediaError();
+            //                        break;
+            //                    default:
+            //                        console.error('Fatal error - destroying player');
+            //                        hlsPlayer.destroy();
+            //                        showError('Video playback error');
+            //                        break;
+            //                }
+            //            }
+            //        });
+        //
+            //    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            //        // Fallback for Safari
+            //        video.src = hlsPath;
+            //        video.addEventListener('loadedmetadata', function() {
+            //            video.play();
+            //        });
+            //    } else {
+            //        showError('HLS playback not supported');
+            //    }
+            //}
+        //
+            //function showError(message) {
+            //    const errorDiv = document.createElement('div');
+            //    errorDiv.className = 'video-error';
+            //    errorDiv.textContent = message;
+            //    video.parentNode.appendChild(errorDiv);
+            //}
+        //
+            // Start initialization
+            //initializePlayer();
+        });
+    });
+        </script>
+{% endblock main_body %}

@@ -1,0 +1,164 @@
+
+.container_2 {
+    max-width: 900px;
+    margin: 0 auto; /* Center the container */
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    border-radius: 10px; /* Rounded corners for the container */
+    background-color: #fff; /* White background for the container */
+}
+
+/* Header Styles */
+header {
+    text-align: center; /* Center the heading */
+    margin-bottom: 20px; /* Space below the heading */
+}
+
+h1 {
+    font-size: 2.5em; /* Larger font size for heading */
+    color:  #4b4b4b; /* Blue color for headings */
+    margin: 0;
+    font-weight: 600; /* Semi-bold font weight */
+}
+
+p {
+    color: #555; /* Slightly darker gray for subtitle */
+}
+
+/* Search Container */
+.search-container {
+    display: flex;
+    justify-content: center; /* Center the search bar */
+    margin: 20px 0; /* Space around the search bar */
+    flex-wrap: wrap; /* Allow wrapping for smaller screens */
+}
+
+#search {
+    flex: 1;
+    padding: 12px; /* Increased padding for input */
+    font-size: 1.1em; /* Slightly larger font size */
+    border: 2px solid #007bff; /* Blue border */
+    border-radius: 5px; /* Rounded corners */
+    width: 100%; /* Full width on small screens */
+    max-width: 320px; /* Limit max width */
+    margin-bottom: 10px; /* Space below input */
+    transition: border-color 0.3s; /* Smooth border transition */
+}
+
+#search:focus {
+    outline: none; /* Remove default outline */
+    border-color: #0056b3; /* Darker blue on focus */
+}
+
+/* Button Styles */
+.action-button {
+    height: 49px;
+    background-color: #007bff; /* Blue background */
+    color: white; /* White text */
+    border: none; /* Remove border */
+    padding: 12px 15px; /* Padding for button */
+    cursor: pointer; /* Pointer cursor */
+    border-radius: 5px; /* Rounded corners */
+    font-size: 1.1em; /* Larger font size */
+    transition: background-color 0.3s, transform 0.2s; /* Smooth transition */
+}
+
+.action-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: scale(1.05); /* Slight scale effect on hover */
+}
+
+/* Card Styles */
+.results {
+    display: flex;
+    flex-wrap: wrap; /* Allow cards to wrap */
+    justify-content: center; /* Center cards */
+    margin-top: 20px; /* Space above cards */
+}
+
+.card {
+    background-color: #fff; /* White background for cards */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for cards */
+    margin: 15px; /* Space between cards */
+    padding: 15px; /* Padding inside the card */
+    width: calc(30% - 30px); /* Responsive card width */
+    text-align: center; /* Center text inside cards */
+    transition: transform 0.2s; /* Smooth transform transition */
+}
+
+.card:hover {
+    transform: translateY(-5px); /* Lift effect on hover */
+}
+
+.card-image {
+    width: 100%; /* Full width for images */
+    height: auto; /* Maintain aspect ratio */
+    border-radius: 10px; /* Match card corners */
+    margin-bottom: 10px; /* Space below image */
+}
+
+/* Card Text Styles */
+.card h3 {
+    margin: 10px 0; /* Margin for title */
+    color:  #4b4b4b; /* Accent color for headings */
+    font-size: 1.5em; /* Larger font size for headings */
+}
+
+.card p {
+    color: #555; /* Darker gray for description */
+    font-size: 0.9em; /* Smaller font size for descriptions */
+}
+
+/* Card Buttons */
+.card-buttons {
+    margin-top: 10px; /* Space above button group */
+    display: flex;
+    justify-content: space-between; /* Space buttons evenly */
+}
+
+.card-button,
+.card-action-button {
+    background-color: #007bff; /* Blue background */
+    color: white; /* White text */
+    border: none; /* Remove border */
+    padding: 10px; /* Padding for button */
+    cursor: pointer; /* Pointer cursor */
+    border-radius: 5px; /* Rounded corners */
+    transition: background-color 0.3s; /* Smooth transition */
+    flex: 1; /* Make buttons take equal space */
+    margin-right: 5px; /* Space between buttons */
+}
+
+.card-button:last-child,
+.card-action-button:last-child {
+    margin-right: 0; /* No margin on the last button */
+}
+
+/* Hover effects for buttons */
+.card-button:hover,
+.card-action-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card {
+        width: calc(95% - 10px); /* 2 cards per row */
+    }
+}
+
+@media (max-width: 480px) {
+    .card {
+        width: calc(100% - 10px); /* Full width on small screens */
+    }
+
+    .search-container {
+        flex-direction: column; /* Stack elements on small screens */
+        align-items: center; /* Center items */
+    }
+
+    #search {
+        margin-bottom: 10px; /* Space below search */
+    }
+}

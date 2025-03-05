@@ -1,0 +1,380 @@
+{% extends 'expert/base.html' %}
+{% load static %}
+
+{% block main_body %}
+<div class="widget">
+    <h1>Create New Quiz</h1>
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+            {{ message }}
+            <button type="button" class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- Quiz Info Section -->
+        <div class="quiz-info">
+            <div class="form-group">
+                <label for="title">Quiz Title:</label>
+                <input type="text" id="title" name="title" value="{{ title }}" required class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" class="form-control" rows="3">{{ description }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="course">Select Course:</label>
+                <select id="course" name="course" class="form-control" required>
+                    <option value="">Select a course</option>
+                    {% for course in courses %}
+                        <option value="{{ course.id }}">{{ course.course_title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="passing_score">Passing Score (%):</label>
+                <input type="number" 
+                       id="passing_score" 
+                       name="passing_score" 
+                       value="{{ passing_score|default:35 }}" 
+                       min="1" 
+                       max="100" 
+                       class="form-control" 
+                       required>
+            </div>
+            <div class="form-group">
+                <label for="duration">Quiz Duration (minutes):</label>
+                <input type="number" 
+                       id="duration" 
+                       name="duration" 
+                       value="{{ duration|default:30 }}" 
+                       min="1" 
+                       class="form-control" 
+                       required>
+            </div>
+        </div>
+
+        <!-- Questions Section -->
+        <div class="questions-section">
+            <h3>Questions</h3>
+            <div id="questions-container"></div>
+
+            <button type="button" id="add-question-btn" class="btn btn-primary" onclick="addNewQuestion()">
+                Add Question
+            </button>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-success">Save Quiz</button>
+        </div>
+    </form>
+</div>
+
+<script>
+let questionCount = 0;
+const maxQuestions = 100;
+
+function addNewQuestion() {
+    if (questionCount >= maxQuestions) {
+        alert('Maximum number of questions reached');
+        return;
+    }
+
+    questionCount++;
+    const container = document.getElementById('questions-container');
+    const questionDiv = document.createElement('div');
+    questionDiv.className = 'question-block';
+    questionDiv.innerHTML = `
+        <div class="question-header">
+            <h4>Question ${questionCount}</h4>
+            <button type="button" class="remove-question-btn" onclick="removeQuestion(this)">×</button>
+        </div>
+        <div class="form-group">
+            <label>Question Text:</label>
+            <input type="text" name="question_text_${questionCount}" required class="form-control">
+        </div>
+        
+        <div class="form-group">
+            <label>Question Type:</label>
+            <select name="question_type_${questionCount}" onchange="toggleQuestionType(${questionCount}, this.value)" class="form-control" required>
+                <option value="">Select Type</option>
+                <option value="MCQ">Multiple Choice</option>
+                <option value="TF">True/False</option>
+                <!--<option value="SA">Short Answer</option>-->
+            </select>
+        </div>
+
+        <div id="options_${questionCount}" class="options-container" style="display:none;">
+            <!-- Options will be dynamically added here -->
+        </div>
+    `;
+    container.appendChild(questionDiv);
+}
+function removeQuestion(button) {
+    const questionBlock = button.closest('.question-block');
+    questionBlock.remove();
+    questionCount--;
+    updateQuestionNumbers();
+}
+
+function updateQuestionNumbers() {
+    const questions = document.querySelectorAll('.question-block');
+    questions.forEach((question, index) => {
+        const newIndex = index + 1;
+        
+        // Update question header
+        const header = question.querySelector('h4');
+        header.textContent = `Question ${newIndex}`;
+        
+        // Update input names/IDs
+        const questionText = question.querySelector('input[name^="question_text_"]');
+        questionText.name = `question_text_${newIndex}`;
+        
+        // Update question type select
+        const questionType = question.querySelector('select[name^="question_type_"]');
+        questionType.name = `question_type_${newIndex}`;
+        questionType.setAttribute('onchange', `toggleQuestionType(${newIndex}, this.value)`);
+        
+        // Update options container
+        const optionsContainer = question.querySelector('div[id^="options_"]');
+        optionsContainer.id = `options_${newIndex}`;
+        
+        // Update option inputs and radio buttons if they exist
+        const options = question.querySelectorAll('input[name^="option_"]');
+        options.forEach((option, optionIndex) => {
+            const optionNumber = optionIndex + 1;
+            option.name = `option_${newIndex}_${optionNumber}`;
+        });
+        
+        // Update radio buttons
+        const radios = question.querySelectorAll('input[name^="correct_option_"]');
+        radios.forEach(radio => {
+            radio.name = `correct_option_${newIndex}`;
+        });
+    });
+}
+
+
+
+function toggleQuestionType(questionNumber, type) {
+    const optionsContainer = document.getElementById(`options_${questionNumber}`);
+    optionsContainer.style.display = 'block';
+    
+    if (type === 'MCQ') {
+        optionsContainer.innerHTML = `
+            <div class="form-group">
+                <label>Option 1:</label>
+                <input type="text" name="option_${questionNumber}_1" required class="form-control">
+                <div class="radio-container">
+                    <input type="radio" name="correct_option_${questionNumber}" value="1" required>
+                    <span>Correct Answer</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Option 2:</label>
+                <input type="text" name="option_${questionNumber}_2" required class="form-control">
+                <div class="radio-container">
+                    <input type="radio" name="correct_option_${questionNumber}" value="2" required>
+                    <span>Correct Answer</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Option 3:</label>
+                <input type="text" name="option_${questionNumber}_3" class="form-control">
+                <div class="radio-container">
+                    <input type="radio" name="correct_option_${questionNumber}" value="3" required>
+                    <span>Correct Answer</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Option 4:</label>
+                <input type="text" name="option_${questionNumber}_4" class="form-control">
+                <div class="radio-container">
+                    <input type="radio" name="correct_option_${questionNumber}" value="4" required>
+                    <span>Correct Answer</span>
+                </div>
+            </div>
+        `;
+    } else if (type === 'TF') {
+        optionsContainer.innerHTML = `
+            <div class="form-group">
+                <div class="radio-container">
+                    <input type="radio" name="correct_option_${questionNumber}" value="1" required>
+                    <span>True</span>
+                </div>
+                <div class="radio-container">
+                    <input type="radio" name="correct_option_${questionNumber}" value="2" required>
+                    <span>False</span>
+                </div>
+                
+            </div>
+        `;
+    } else if (type === 'SA') {
+        optionsContainer.innerHTML = `
+            <div class="form-group">
+                <label>Correct Answer:</label>
+                <input type="text" name="correct_answer_${questionNumber}" required class="form-control">
+            </div>
+        `;
+    } else {
+        optionsContainer.style.display = 'none';
+    }
+}
+</script>
+
+<style>
+
+.question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.remove-question-btn {
+    background: none;
+    border: none;
+    color: #dc3545;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 4px;
+    line-height: 1;
+}
+
+.remove-question-btn:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+.radio-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 5px 0;
+}
+.messages {
+    margin-bottom: 20px;
+}
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+.btn {
+    padding: 12px 20px;
+    font-size: 16px;
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 5px;
+}
+
+
+
+
+
+.quiz-info {
+    margin-bottom: 2rem;
+}
+.question-block {
+    border: 1px solid #ddd;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+}
+.form-group {
+    margin-bottom: 1rem;
+}
+.form-control {
+    width: 100%;
+    padding: 0.5rem;
+}
+.btn {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+    border: none;
+}
+.btn-success {
+    background-color: #28a745;
+    color: white;
+    border: none;
+}
+.options-container {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+@media screen and (max-width: 768px) {
+    .remove-question-btn {
+        padding: 8px 12px;
+        font-size: 20px;
+    }
+    h1 {
+        font-size: 24px;
+        margin-bottom: 1rem;
+    }
+    
+    .form-group {
+        margin-bottom: 0.75rem;
+    }
+    
+    .form-control {
+        padding: 0.5rem;
+    }
+    
+    .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    
+    
+}
+@media screen and (max-width: 480px) {
+    
+    h1 {
+        font-size: 20px;
+    }
+    
+    .form-control {
+        font-size: 14px;
+    }
+}
+@media (hover: none) and (pointer: coarse) {
+    input[type="radio"],
+    input[type="checkbox"] {
+        min-width: 44px;
+        min-height: 44px;
+    }
+    
+    select {
+        height: 44px;
+    }
+}
+
+</style>
+{% endblock %}

@@ -1,0 +1,273 @@
+{% extends 'expert/base.html' %}
+{% load static %}
+{% block main_head %}
+<style>
+    .profile-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 2px solid #007bff;
+        margin-bottom: 20px;
+    }
+    .profile-info {
+        display: flex;
+        align-items: center;
+    }
+    .profile-info img{
+        margin-bottom: 5px;
+        border: 2px solid #007bff;
+    }
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin-right: 20px;
+    }
+    .profile-name {
+        font-size: 1.5rem;
+        margin: 0;
+    }
+    .profile-settings {
+        cursor: pointer;
+        font-size: 1.5rem;
+        color: #007bff;
+    }
+    .profile-details {
+        margin-top: 20px;
+    }
+    .profile-detail {
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+    }
+    .profile-detail label {
+        font-weight: bold;
+    }
+    @media (max-width: 768px) {
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+        }
+        .profile-name {
+            font-size: 1.2rem;
+        }
+        .profile-settings {
+            font-size: 1.2rem;
+        }
+        .profile-detail {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .profile-detail label {
+            margin-bottom: 5px;
+        }
+    }
+    .course-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #ccc;
+         background: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        position: relative; /* Position relative for dropdown */
+    }
+    .course-details {
+        flex: 1;
+    }
+    .course-actions {
+        display: flex;
+        gap: 10px;
+    }
+    .course-actions button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+    .course-actions button:hover {
+        background: #0056b3;
+    }
+    
+</style>
+{% endblock main_head %}
+{% block main_body %}
+<div class="widget">
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+            {{ message }}
+            <button type="button" class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <div class="profile-header">
+        <div class="profile-info">
+            {% if user.expertprofile.profile_picture %}
+            <img src="{{ user.expertprofile.profile_picture.url }}" class="profile-avatar" alt="Profile Avatar">
+            {% else %}
+                <img src="{% static 'images/default-profile.png' %}" class="profile-avatar" alt="Profile Avatar"/>
+            {% endif %}
+            <h1 class="profile-name">{{ user.username }}</h1>
+        </div>
+        <i class="fas fa-bars text-2xl" onclick="openSidebar()"></i>
+        <!--<i class="fas fa-cog profile-settings" title="Settings" onclick="openSettings()"></i>-->
+    </div>
+    <div class="profile-details">
+        <div class="profile-detail">
+            <label>Email:</label> <span>{{ user.email }}</span>
+        </div>
+        <div class="profile-detail">
+            <label>Phone:</label> <span>{{ user.expertprofile.mobile_number }}</span>
+        </div>
+        <div class="profile-detail">
+            <label>Address:</label> <span>{{ user.expertprofile.address }}</span>
+        </div>
+        <div class="profile-detail">
+            <label>Subject:</label> <span>{{ user.expertprofile.subject }}</span>
+        </div>
+    </div>
+
+    <h2>Uploaded Courses</h2>
+    {% if courses %}
+            {% for course in courses %}
+                <div class="course-item">
+                    <a href="{% url 'expert_lessons' course.id %}">
+                    <div class="course-details">
+                        <strong>{{ course.course_title }}</strong><br>
+                        <small>{{ course.about_course }}</small>
+                    </div>
+                    </a>
+                    <div class="options">
+                        <i class="fas fa-ellipsis-v" onclick="toggleDropdown(event)"></i>
+                        <div class="dropdown">
+                            <button class="edit-button"><a href="{% url 'rename_course' course.id %}">Edit</a></button>
+                            <button class="delete-button"><a href="{% url 'delete_course' course.id %}">Delete</a></button>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                No courses found.
+            {% endfor %}
+        {% else %}
+        <p>You haven't created any courses yet.</p>
+        {% endif %}
+        <!--<a href="{% url 'logout' %}">logout</a>-->
+    <!-- Add more course cards as needed -->
+</div>
+
+<script>
+    function openSidebar() {
+        const sidebar = document.createElement('div');
+        sidebar.id = 'sidebar';
+        sidebar.style.position = 'fixed';
+        sidebar.style.top = '0';
+        sidebar.style.right = '0';
+        sidebar.style.width = '250px';
+        sidebar.style.height = '100%';
+        sidebar.style.backgroundColor = '#343a40';
+        sidebar.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5)';
+        sidebar.style.padding = '20px';
+        sidebar.style.zIndex = '1000';
+        sidebar.style.transition = 'transform 0.3s ease-in-out';
+        sidebar.style.transform = 'translateX(100%)';
+
+        const closeButton = document.createElement('button');
+        closeButton.innerHTML = '&times;';
+        closeButton.style.position = 'absolute';
+        closeButton.style.top = '10px';
+        closeButton.style.right = '10px';
+        closeButton.style.background = 'none';
+        closeButton.style.border = 'none';
+        closeButton.style.color = 'white';
+        closeButton.style.fontSize = '1.5rem';
+        closeButton.style.cursor = 'pointer';
+        closeButton.onclick = function() {
+            closeSidebar();
+        };
+
+        const logoutButton = document.createElement('a');
+        logoutButton.href = "{% url 'logout' %}";
+        logoutButton.innerHTML = 'Logout';
+        logoutButton.style.display = 'block';
+        logoutButton.style.color = 'white';
+        logoutButton.style.marginTop = '20px';
+        logoutButton.style.textDecoration = 'none';
+        logoutButton.style.fontSize = '1.2rem';
+
+        const settingsButton = document.createElement('a');
+        settingsButton.href = "{% url 'expert_profile_setting' %}";
+        settingsButton.innerHTML = 'Settings';
+        settingsButton.style.display = 'block';
+        settingsButton.style.color = 'white';
+        settingsButton.style.marginTop = '20px';
+        settingsButton.style.textDecoration = 'none';
+        settingsButton.style.fontSize = '1.2rem';
+
+        sidebar.appendChild(closeButton);
+        sidebar.appendChild(logoutButton);
+        sidebar.appendChild(settingsButton);
+        document.body.appendChild(sidebar);
+
+        setTimeout(() => sidebar.style.transform = 'translateX(0)', 10);
+
+        document.addEventListener('click', outsideClickListener);
+    }
+
+    function closeSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) {
+            sidebar.style.transform = 'translateX(100%)';
+            setTimeout(() => sidebar.remove(), 300);
+            document.removeEventListener('click', outsideClickListener);
+        }
+    }
+
+    function outsideClickListener(event) {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar && !sidebar.contains(event.target) && !event.target.closest('.fas.fa-bars')) {
+            closeSidebar();
+        }
+    }
+</script>
+
+<script>
+    function openSettings() {
+        //alert('Settings page will open.'); // Replace with actual navigation to settings page
+        window.location.href = 'profile_setting'; // Uncomment to navigate to settings page
+    }
+
+    function toggleDropdown(event) {
+    const dropdowns = document.querySelectorAll('.dropdown');
+    const currentDropdown = event.target.nextElementSibling; // Get the dropdown associated with the clicked icon
+
+    // Close all dropdowns except the current one
+    dropdowns.forEach(dropdown => {
+        if (dropdown !== currentDropdown) {
+            dropdown.classList.remove('show'); // Close other dropdowns
+        }
+    });
+
+    // Toggle the current dropdown
+    currentDropdown.classList.toggle('show');
+}
+window.onclick = function(event) {
+    if (!event.target.matches('.fas.fa-ellipsis-v')) {
+        const dropdowns = document.querySelectorAll('.dropdown');
+        dropdowns.forEach(dropdown => {
+            dropdown.classList.remove('show'); // Close dropdown
+        });
+    }
+};
+</script>
+
+{% endblock main_body %}

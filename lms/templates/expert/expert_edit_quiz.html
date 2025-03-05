@@ -1,0 +1,388 @@
+{% extends 'expert/base.html' %}
+{% load static %}
+{% load quiz_filters %}
+
+{% block main_head %}
+<style>
+.edit-quiz {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 0 15px;
+}
+
+.quiz-info {
+    margin-bottom: 30px;
+}
+
+.question-block {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+.remove-question {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.options-container {
+    margin-top: 15px;
+}
+
+.option-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.alert {
+    position: relative;
+    padding: 15px 45px 15px 15px; /* Increased right padding */
+    margin-bottom: 10px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.alert-error {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.close-btn {
+    position: absolute;
+    right: 15px; /* Increased from 10px */
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 1;
+    color: inherit;
+    opacity: 0.5;
+    padding: 8px; /* Added padding for better touch target */
+    margin-left: 15px; /* Added margin for spacing */
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex; /* Changed from contents */
+    align-items: center;
+    justify-content: center;
+}
+
+.close-btn:hover {
+    opacity: 1;
+}
+input[type="number"] {
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+}
+
+input[type="number"]:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+@media (max-width: 768px) {
+    .edit-quiz {
+        padding: 0 10px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block main_body %}
+<div class="widget">
+<div class="edit-quiz">
+    <h1>Edit Quiz</h1>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+            {{ message }}
+            <button type="button" class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="quiz-info">
+            <div class="form-group">
+                <label for="title">Quiz Title:</label>
+                <input type="text" id="title" name="title" value="{{ quiz.title }}" required class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" class="form-control" rows="3">{{ quiz.description }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="duration">Duration (minutes):</label>
+                <input 
+                    type="number" 
+                    id="duration" 
+                    name="duration" 
+                    class="form-control" 
+                    value="{{ quiz.duration|minutes }}"
+                    min="1" 
+                    required>
+            </div>
+        </div>
+
+        <div id="questions-container">
+            {% for question in questions %}
+            <div class="question-block">
+                <input type="hidden" name="question_id_{{ forloop.counter }}" value="{{ question.id }}">
+                <!--
+                <button type="button" class="remove-question" onclick="removeQuestion(this)">&times;</button>
+                -->
+                <div class="form-group">
+                    <label>Question Text:</label>
+                    <input type="text" name="question_text_{{ forloop.counter }}" value="{{ question.question_text }}" required class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label>Question Type:</label>
+                    <select name="question_type_{{ forloop.counter }}" onchange="toggleQuestionType({{ forloop.counter }}, this.value)" class="form-control" required>
+                        <option value="MCQ" {% if question.question_type == 'MCQ' %}selected{% endif %}>Multiple Choice</option>
+                        <option value="TF" {% if question.question_type == 'TF' %}selected{% endif %}>True/False</option>
+                        <!--<option value="SA" {% if question.question_type == 'SA' %}selected{% endif %}>Short Answer</option>-->
+                    </select>
+                </div>
+
+                <div id="options_{{ forloop.counter }}" class="options-container" style="display:{% if question.question_type == 'MCQ' %}block{% else %}none{% endif %};">
+                    {% if question.question_type == 'MCQ' %}
+                        {% for i in '1234'|make_list %}
+                        <div class="option-group">
+                            <input type="text" name="option_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" 
+                                   value="{% if forloop.counter == 1 %}{{ question.option_1 }}{% elif forloop.counter == 2 %}{{ question.option_2 }}{% elif forloop.counter == 3 %}{{ question.option_3 }}{% else %}{{ question.option_4 }}{% endif %}" 
+                                   class="form-control">
+                            <label class="radio-label">
+                                <input type="radio" name="correct_option_{{ forloop.parentloop.counter }}" value="{{ forloop.counter }}"
+                                       {% if question.correct_answer == forloop.counter|stringformat:"s" %}checked{% endif %}>
+                                Correct
+                            </label>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div id="tf_{{ forloop.counter }}" class="options-container" style="display:{% if question.question_type == 'TF' %}block{% else %}none{% endif %};">
+                    {% if question.question_type == 'TF' %}
+                    <div class="option-group">
+                        <label class="radio-label">
+                            <input type="radio" name="correct_option_{{ forloop.counter }}" value="1"
+                                   {% if question.correct_answer == '1' %}checked{% endif %}>
+                            True
+                        </label>
+                    </div>
+                    <div class="option-group">
+                        <label class="radio-label">
+                            <input type="radio" name="correct_option_{{ forloop.counter }}" value="2"
+                                   {% if question.correct_answer == '2' %}checked{% endif %}>
+                            False
+                        </label>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div id="sa_{{ forloop.counter }}" class="options-container" style="display:{% if question.question_type == 'SA' %}block{% else %}none{% endif %};">
+                    {% if question.question_type == 'SA' %}
+                    <div class="form-group">
+                        <label>Correct Answer:</label>
+                        <input type="text" name="correct_answer_{{ forloop.counter }}" value="{{ question.correct_answer }}" class="form-control">
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
+</div>
+
+<script>
+// Store question data on page load
+let originalQuestionData = {};
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Store original data for each question
+    document.querySelectorAll('.question-block').forEach(question => {
+        const questionId = question.querySelector('input[type="hidden"]').value;
+        const questionNumber = question.querySelector('input[name^="question_text_"]').name.split('_')[2];
+        
+        originalQuestionData[questionNumber] = {
+            id: questionId,
+            text: question.querySelector('input[name^="question_text_"]').value,
+            type: question.querySelector('select[name^="question_type_"]').value,
+            mcq: {
+                options: Array.from(question.querySelectorAll('input[name^="option_"]')).map(input => input.value),
+                correctAnswer: question.querySelector('input[name^="correct_option_"]:checked')?.value
+            },
+            tf: {
+                correctAnswer: question.querySelector('#tf_' + questionNumber + ' input[type="radio"]:checked')?.value
+            },
+            sa: {
+                answer: question.querySelector('#sa_' + questionNumber + ' input[type="text"]')?.value
+            }
+        };
+    });
+
+    // Add form submit handler
+    document.querySelector('form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        // Merge original data with changes
+        document.querySelectorAll('.question-block').forEach(question => {
+            const questionNumber = question.querySelector('input[name^="question_text_"]').name.split('_')[2];
+            const questionType = question.querySelector('select[name^="question_type_"]').value;
+            
+            if (originalQuestionData[questionNumber]) {
+                formData.append(`question_id_${questionNumber}`, originalQuestionData[questionNumber].id);
+                
+                // Preserve data based on type
+                if (questionType !== originalQuestionData[questionNumber].type) {
+                    switch(originalQuestionData[questionNumber].type) {
+                        case 'MCQ':
+                            originalQuestionData[questionNumber].mcq.options.forEach((opt, idx) => {
+                                formData.set(`option_${questionNumber}_${idx + 1}`, opt);
+                            });
+                            break;
+                        case 'TF':
+                            if (originalQuestionData[questionNumber].tf.correctAnswer) {
+                                formData.set(`correct_option_${questionNumber}`, originalQuestionData[questionNumber].tf.correctAnswer);
+                            }
+                            break;
+                        case 'SA':
+                            if (originalQuestionData[questionNumber].sa.answer) {
+                                formData.set(`correct_answer_${questionNumber}`, originalQuestionData[questionNumber].sa.answer);
+                            }
+                            break;
+                    }
+                }
+            }
+        });
+        
+        this.submit();
+    });
+});
+
+// Update toggleQuestionType function
+function toggleQuestionType(questionNumber, type) {
+    const optionsContainer = document.getElementById(`options_${questionNumber}`);
+    const tfContainer = document.getElementById(`tf_${questionNumber}`);
+    const saContainer = document.getElementById(`sa_${questionNumber}`);
+
+    // Store current values before switching
+    const currentData = originalQuestionData[questionNumber];
+    
+    optionsContainer.style.display = 'none';
+    tfContainer.style.display = 'none';
+    saContainer.style.display = 'none';
+
+    if (type === 'MCQ') {
+        optionsContainer.style.display = 'block';
+        optionsContainer.innerHTML = `
+            ${[1,2,3,4].map(i => `
+                <div class="option-group">
+                    <input type="text" 
+                           name="option_${questionNumber}_${i}" 
+                           class="form-control" 
+                           value="${currentData?.mcq?.options[i-1] || ''}"
+                           ${i <= 2 ? 'required' : ''}>
+                    <label class="radio-label">
+                        <input type="radio" 
+                               name="correct_option_${questionNumber}" 
+                               value="${i}"
+                               ${currentData?.mcq?.correctAnswer == i ? 'checked' : ''}>
+                        Correct
+                    </label>
+                </div>
+            `).join('')}
+        `;
+    } else if (type === 'TF') {
+        tfContainer.style.display = 'block';
+        tfContainer.innerHTML = `
+            <div class="option-group">
+                <label class="radio-label">
+                    <input type="radio" 
+                           name="correct_option_${questionNumber}" 
+                           value="1"
+                           ${currentData?.tf?.correctAnswer === '1' ? 'checked' : ''}
+                           required>
+                    True
+                </label>
+            </div>
+            <div class="option-group">
+                <label class="radio-label">
+                    <input type="radio" 
+                           name="correct_option_${questionNumber}" 
+                           value="2"
+                           ${currentData?.tf?.correctAnswer === '2' ? 'checked' : ''}>
+                    False
+                </label>
+            </div>
+        `;
+    } else if (type === 'SA') {
+        saContainer.style.display = 'block';
+        saContainer.innerHTML = `
+            <div class="form-group">
+                <label>Correct Answer:</label>
+                <input type="text" 
+                       name="correct_answer_${questionNumber}" 
+                       class="form-control" 
+                       value="${currentData?.sa?.answer || ''}"
+                       required>
+            </div>
+        `;
+    }
+}
+</script>
+</div>
+{% endblock %}

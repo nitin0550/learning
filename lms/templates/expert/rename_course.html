@@ -1,0 +1,58 @@
+{% extends 'expert/base.html' %}
+{% load static %}
+{% block main_head %}
+<style>
+    
+    header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    p {
+        font-size: 0.9em;
+        color: #555;
+    }
+    
+    /* Form Styles */
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    
+    input[type="text"],
+    textarea,
+    input[type="file"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+    
+    a{
+        text-decoration: none;
+    }
+    </style>
+{% endblock main_head %}
+{% block main_body %}
+<div class="widget">
+    <header>
+        <h2>Rename Course: "{{ course.course_title }}"</h2>
+    </header>
+
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="button_area">
+    <button type="submit" class="submit-button">Save Changes</button>
+    <a href="{% url 'expert_my_courses' %}" class="cancel-button">Cancel</a>
+    </div>
+</form>
+</div>
+{% endblock main_body %}

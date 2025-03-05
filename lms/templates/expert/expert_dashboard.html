@@ -1,0 +1,127 @@
+<!-- teacher/templates/teacher/expert_deshboard.html -->
+{% extends 'expert/base.html' %}
+{% block main_head %}
+<style>
+
+    .main-content {
+        width: auto;
+        max-width: 800px;
+        padding: 20px;
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+    }
+    .dash_header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .dash_header h1 {
+        margin: 0;
+        font-size: 1.5rem;
+    }
+    .dash_card {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+        flex: 1;
+        transition: transform 0.2s;
+    }
+    .dash_card:hover {
+        transform: translateY(-2px);
+    }
+    .dash_card h2 {
+        margin: 0 0 10px;
+        font-size: 1.2rem;
+    }
+    .dash_card p {
+        margin: 0;
+        font-size: 1rem;
+    }
+    .dashboard-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+    @media (max-width: 768px) {
+        .main-content {
+            padding: 15px;
+        }
+        .dash_header h1 {
+            font-size: 1.2rem;
+        }
+        .dash_card {
+            flex: 1 1 100%; /* Full width on small screens */
+        }
+    }
+   
+    
+</style>
+{% endblock main_head %}
+
+
+{% block main_body %}
+<div class="mobile-header">
+    <div class="logo"><b>Welcome, {{ user.username }}</b></div>
+    <nav>
+        <a href="{% url 'selles_dashboard' %}"><i class="fas fa-wallet" style="font-size: 25px;"></i></a>
+        
+    </nav>
+
+</div>	
+<div class="widget">
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+            {{ message }}
+            <button type="button" class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% endif %}
+    <div class="dash_header">
+        <h1>Welcome, {{ user.username }}</h1>
+    </div>
+    
+    <div class="dashboard-grid" style="margin-top: 50px;">
+        <div class="dash_card">
+            <a href="{% url 'expert_my_courses' %}">
+            <h2>Courses</h2>
+            <p>{{ total_courses }} Courses</p></a>
+        </div>
+        <div class="dash_card">
+            <a href="{% url 'expert_student_management' %}">
+            <h2>Students Enrolled</h2>
+            <p>{{ enrolled_student }} Students </p></a>
+        </div>
+        <div class="dash_card">
+            <a href="{% url 'expert_assignment' %}">
+            <h2>Assignments Due</h2>
+            <p>{{ due_assignment }} Assignments</p></a>
+        </div>
+        <div class="dash_card">
+            <a href="{% url 'expert_quiz_list' %}">
+            <h2>Quizzes Created</h2>
+            <p>{{ quizzes }} Quizzes</p></a>
+        </div>
+        <!--
+        <div class="dash_card">
+            <h2>Messages</h2>
+            <p>10 New Messages</p>
+        </div>
+        <div class="dash_card">
+            <h2>Test Results</h2>
+            <p>Average Score: 85%</p>
+        </div>
+        -->
+    </div>
+</div>
+
+
+{% endblock main_body %}

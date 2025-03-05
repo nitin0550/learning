@@ -1,0 +1,358 @@
+{% extends 'expert/base.html' %}
+{% block main_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+<style>
+    .card {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-bottom: 24px;
+    }
+    
+    .card-header {
+        background-color: #050000a9;
+        color: white;
+        padding: 15px;
+        border-radius: 4px 4px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .card-header h3 {
+        margin: 0;
+        font-size: 1.5rem;
+    }
+    
+    .back-button {
+        background: white;
+        color: #007bff;
+        padding: 5px 10px;
+        border-radius: 3px;
+        text-decoration: none;
+        font-size: 0.875rem;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    
+    .info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .info-item {
+        padding: 12px 0;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .info-item i {
+        color: #032c0d;
+        margin-right: 8px;
+    }
+
+    .info-item strong {
+        margin-right: 5px;
+    }
+
+    .results-section {
+        margin: 2rem 0;
+    }
+
+    .results-table {
+        background: #fff;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+    }
+
+    th {
+        background: #f8f9fa;
+        font-weight: 600;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.875rem;
+    }
+    .chart-container {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+}
+    .status-badge.passed {
+        background: #28a745;
+        color: white;
+    }
+
+    .status-badge.failed {
+        background: #dc3545;
+        color: white;
+    }
+    @media (max-width: 768px) {
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+{% endblock main_head %}
+
+{% block main_body %}
+<div class="widget">
+
+    <div class="card">
+        <div class="card-header">
+            <h3>{{ quiz.title }}</h3>
+        </div>
+        <div class="card-body">
+            <div class="info-grid">
+                <div>
+                    <ul class="info-list">
+                        <li class="info-item"><i class="fas fa-book text-primary"></i> <strong>Course:</strong> {{ course.course_title }}</li>
+                        <li class="info-item"><i class="fas fa-question-circle text-primary"></i> <strong>Total Questions:</strong> {{ quiz.questions.count }}</li>
+                        <li class="info-item"><i class="fas fa-check-circle text-primary"></i> <strong>Passing Score:</strong> {{ quiz.passing_score }}%</li>
+                    </ul>
+                </div>
+                <div>
+                    <ul class="info-list">
+                        <li class="info-item"><i class="fas fa-user text-primary"></i> <strong>Created By:</strong> {{ quiz.created_by.username }}</li>
+                        <li class="info-item"><i class="fas fa-calendar-alt text-primary"></i> <strong>Created On:</strong> {{ quiz.created_at|date:"F d, Y" }}</li>
+                        <li class="info-item"><i class="fas fa-clock text-primary"></i> <strong>Duration:</strong> {{ quiz.duration }} minutes</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-wrapper">
+                <table>
+                    <thead class="table-light">
+                        <tr>
+                            <th>Student</th>
+                            <th>Score</th>
+                            <th>Status</th>
+                            <th>Completed On</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for assignment in assignments %}
+                        <tr>
+                            <!--<td>{{ assignment.student.get_full_name|default:assignment.student.username }}</td>-->
+                            <td>
+                                <a href="{% url 'student_quiz_details' quiz_id=quiz.id student_id=assignment.student.id %}" 
+                                   class="text-decoration-none">
+                                    {{ assignment.student.username }}
+                                </a>
+                            </td>
+                            <td>{{ assignment.score|floatformat:1 }}%</td>
+                            <td>
+                                {% if assignment.score >= quiz.passing_score %}
+                                    <span class="badge bg-success">Passed</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Failed</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ assignment.completed_date|date:"M d, Y H:i" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">No students have completed this quiz yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <ul class="info-list">
+                <li class="info-item">
+                    <strong>Total Assigned:</strong>
+                    {{ stats.total_assigned }}
+                </li>
+                <li class="info-item">
+                    <strong>Completed:</strong>
+                    {{ stats.total_completed }}
+                </li>
+                <li class="info-item">
+                    <strong>Completion Rate:</strong>
+                    {{ stats.completion_rate }}%
+                </li>
+                <li class="info-item">
+                    <strong>Average Score:</strong>
+                    {{ stats.avg_score }}%
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="results-section">
+        <div class="chart-container">
+            <canvas id="expertChart" style="height: 200px;"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+        const ctx = document.getElementById('expertChart').getContext('2d');
+    
+    // Create gradients
+    const gradient1 = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient1.addColorStop(0, 'rgba(255, 99, 132, 0.8)');
+    gradient1.addColorStop(1, 'rgba(255, 99, 132, 0.2)');
+    
+    const gradient2 = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient2.addColorStop(0, 'rgba(54, 162, 235, 0.8)');
+    gradient2.addColorStop(1, 'rgba(54, 162, 235, 0.2)');
+    
+    const gradient3 = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient3.addColorStop(0, 'rgba(75, 192, 192, 0.8)');
+    gradient3.addColorStop(1, 'rgba(75, 192, 192, 0.2)');
+    
+    const expertChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Daily', 'Monthly', 'Yearly'],
+            datasets: [{
+                label: 'Average Scores',
+                data: [
+                    {{ stats.daily_avg_score|default:stats.avg_score }},
+                    {{ stats.monthly_avg_score|default:stats.avg_score }},
+                    {{ stats.yearly_avg_score|default:stats.avg_score }}
+                ],
+                backgroundColor: [gradient1, gradient2, gradient3],
+                borderColor: [
+                    '#ff6384',
+                    '#36a2eb',
+                    '#4bc0c0'
+                ],
+                borderWidth: 2,
+                borderRadius: 8,
+                maxBarThickness: 80,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+                duration: 2000,
+                easing: 'easeInOutQuart'
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 12,
+                            weight: 'bold'
+                        },
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 12,
+                            weight: 'bold'
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        padding: 20
+                    }
+                },
+                title: {
+                    display: true,
+                    text: 'Performance Analytics',
+                    font: {
+                        size: 20,
+                        weight: 'bold'
+                    },
+                    padding: {
+                        top: 10,
+                        bottom: 30
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleFont: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        size: 13
+                    },
+                    padding: 12,
+                    callbacks: {
+                        label: function(context) {
+                            return `Score: ${context.parsed.y}%`;
+                        }
+                    }
+                },
+                datalabels: {
+                    color: '#000',
+                    anchor: 'end',
+                    align: 'top',
+                    formatter: function(value) {
+                        return value + '%';
+                    },
+                    font: {
+                        weight: 'bold'
+                    }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+    </script>
+{% endblock main_body %}

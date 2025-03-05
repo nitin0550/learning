@@ -1,0 +1,229 @@
+{% extends 'expert/base.html' %}
+{% load static %}
+{% block main_head %}
+
+<style>
+    .quiz-list {
+        padding: 0 0 20px 0;
+        max-width: 800px;
+        margin: auto;
+    }
+    .quiz-card {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px 0;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+        justify-content: space-between;
+    }
+    .quiz-card:hover {
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .quiz-info {
+        flex: 1;
+    }
+    .quiz-info h3 {
+        margin: 0;
+        font-size: 18px;
+    }
+    .quiz-info p {
+        margin: 5px 0;
+        color: #555;
+    }
+    .quiz-info span {
+        font-size: 12px;
+        color: #aaa;
+    }
+
+.create-course-icon {
+    margin: 10px 0;
+    display: flex;
+    justify-content: flex;
+    align-items: center;
+    font-size: 18px;
+}
+
+.create-course-icon a {
+    color: #0056b3;
+    text-decoration: none;
+}
+
+.create-course-icon i {
+    margin-right: 5px;
+}
+
+.options i {
+    font-size: 20px;
+    color: #555;
+    cursor: pointer;
+}
+.send-button {
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.send-button:hover {
+    background-color: #0056b3;
+}
+
+.send-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .quiz-info {
+        padding-right: 10px;
+    }
+    
+    .options {
+        padding: 3px;
+    }
+    
+    .dropdown {
+        min-width: 100px;
+    }
+    
+    .dropdown button {
+        padding: 6px 12px;
+    }
+}
+</style>
+
+{% endblock main_head %}
+{% block main_body %}
+<div class="widget">
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+            {{ message }}
+            <button type="button" class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <div class="quiz-list">
+        <div class="create-course-icon">
+            <a href="{% url 'expert_create_quiz' %}"><i class="fas fa-plus-circle"></i>Create new quiz</a>
+        </div>
+        {% for quiz in quizzes %}
+        <div  class="quiz-card">
+        <a href="{% url 'expert_quiz_detail' quiz.id %}">
+            <div class="quiz-info">
+                <h3>{{ quiz.title }}</h3>
+                <p>{{ quiz.description }}</p>
+                <span>Created at: {{ quiz.created_at }}</span>
+            </div>
+        </a>
+        <div class="options">
+            <i class="fas fa-ellipsis-v" onclick="toggleDropdown(event)"></i>
+            <div class="dropdown">
+                <button class="edit-button"><a href="{% url 'expert_edit_quiz' quiz.id %}">Edit</a></button>
+                <button class="delete-button" onclick="deleteQuiz({{ quiz.id }}, this)">Delete</button>
+                <button class="send-button" onclick="sendQuiz({{ quiz.id }}, this)">Send Quiz</button>
+            </div>
+        </div>
+    </div>
+        
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+            function toggleDropdown(event) {
+    const dropdowns = document.querySelectorAll('.dropdown');
+    const currentDropdown = event.target.nextElementSibling; // Get the dropdown associated with the clicked icon
+
+    // Close all dropdowns except the current one
+    dropdowns.forEach(dropdown => {
+        if (dropdown !== currentDropdown) {
+            dropdown.classList.remove('show'); // Close other dropdowns
+        }
+    });
+
+    // Toggle the current dropdown
+    currentDropdown.classList.toggle('show');
+}
+window.onclick = function(event) {
+    if (!event.target.matches('.fas.fa-ellipsis-v')) {
+        const dropdowns = document.querySelectorAll('.dropdown');
+        dropdowns.forEach(dropdown => {
+            dropdown.classList.remove('show'); // Close dropdown
+        });
+    }
+};
+function deleteQuiz(quizId, element) {
+    if (confirm('Are you sure you want to delete this quiz?')) {
+        fetch(`/expert/quiz/${quizId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Find and remove the quiz card
+                const quizCard = element.closest('.quiz-card');
+                quizCard.style.opacity = '0';
+                setTimeout(() => {
+                    quizCard.remove();
+                }, 300);
+            } else {
+                alert('Error deleting quiz');
+            }
+        });
+    }
+}
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function sendQuiz(quizId, element) {
+    if (confirm('Are you sure you want to send this quiz to enrolled students?')) {
+        fetch(`/expert/quiz/${quizId}/send/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                element.disabled = true;
+                element.textContent = 'Quiz Sent';
+                alert('Quiz sent successfully to enrolled students');
+            } else {
+                alert(data.message || 'Error sending quiz');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error sending quiz');
+        });
+    }
+}
+</script>
+<script src="{% static 'expert/js/expert_quiz_list.js' %}"></script>
+
+{% endblock main_body %}

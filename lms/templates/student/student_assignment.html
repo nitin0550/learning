@@ -1,0 +1,63 @@
+{% extends 'student/base.html' %}
+{% load static %}
+{% block main_head %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ course.title }} Assignments</title>
+    <style>
+        .assignment-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.course-title {
+    color: #007bff;
+    font-size: 0.9em;
+    margin-bottom: 5px;
+}
+
+.due-date {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.assignment-title {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+.widget{
+    margin-top: 0;
+}
+    </style>
+    {% endblock main_head %}
+    {% block main_body %}
+            <div class="widget">
+                {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+            {{ message }}
+            <button type="button" class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+                    {% if assignments %}
+                        {% for assignment in assignments %}
+                            <div class="assignment-card">
+                                <div class="course-title">{{ assignment.course.course_title }}</div>
+                                <h3 class="assignment-title">{{ assignment.title }}</h3>
+                                <p>{{ assignment.description }}</p>
+                                <p class="due-date">Due: {{ assignment.due_date|date:"F d, Y" }}</p><br>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>No assignments have been created for this course yet.</p>
+                    {% endif %}
+                
+            </div>
+        
+    {% endblock main_body %}

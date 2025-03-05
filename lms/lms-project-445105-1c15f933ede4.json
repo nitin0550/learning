@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "lms-project-445105",
+  "private_key_id": "1c15f933ede4cd6899553c4f378e3bcf90ca74f6",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDVjOLEcD4d25O7\nLamzB17krmpcmuM/cNDew5RFwg5ZkNj7/Zr0gZwM22uRYsjmmaxNeApiUarFzjLF\nUpypHf1OqgTRP6iHYxQgvjyKB/uYVIZTxfYIdX4KIto6xnhELe8QI/RPJzBQ9j8+\nrxVwW997C00DBR8DYny4rFeladnKxgTO8bmsJ72OVNZmsf8pV3svRN8BOQxUhWel\nOxTytQQ5Hc6QJvPaoBe6zXd64j0xaPCASUZKePD2qeLaKxooJZIKvmN+V/C3epb9\nGjbTNOOe57yfScvwUyVtwX4qgsS4XnNssHl0Yp12MpRRd7uP09otrwgO+gTn9YzB\n/ReOsYDrAgMBAAECggEAFtXZ6eeWvNqeEYXwf5RqMUn1VbG6Wy5VJ30CffMiVbGH\ngmq8BylU5osQFZvan84O/rm3YowZFs3V4APVfMAYNjE4Eqgb/V466MVu89Oms8NW\nGd8xT/ZAZBUWAPL4KVJAHhm6Jjyqjf3HBYzzXfB1FVNACPKjPllpvNWxCZ8oCuav\n1Xr7bdPn4XzAsNz2nVF9aYBWHoNYLWf07WwIa/C8qVKWkw0NlNtKGxAGlpL4CIyX\nMjDS0ND5O7UBk35nl7PxIGwI/rEcorCPwtHFVp+bHel32dPNjT0h3rR478VEnMiR\n3y2JkDLfR6Fyg9R50KQVYX1qx7bue/E4HQ/ypDOzAQKBgQDxLddDcrGOLKszNpfK\nHCqkAATt9Wfm7sah/ONL+QZiSmza9nDk33YVZ2tijZiBdz9ngW5VzKehgKAdQDz9\nJ6WoQ2j0MRNso+zS6ihi6w7+9dKIz441aNylm0UXgyTqnKh11YAgW9En/U1y/VuJ\nNLOTvkQuIlFGtOoGPEUee9DOdwKBgQDirGXTayqUTHPJRA9p3PPBKFF9XLaZrjcW\ns/9Q3eCVSnsvAsi9FbnT64+cSLOS+kkbKKT8Hv6IRsKQsCQQgT9MZT7hd5CrGOqb\nnymjrFnZD8hs+DhlZSxNtZ1v2bJw0+xlWBZP07r5w65nRdPOzu3KUq0Ifrcg3uQ3\nrlZgX8v6LQKBgHr/hOv5/0Fh2IHK0siZasmu1NTCthWZKqYMQaNKQg44pKFa06J1\nsFQkJSjiy6cjOKvB35JUSB1easngK/pzkNFqZ4k5yg064JmEH8qq1EAFADUTnRPy\nAa1XrXnbQSWBdYx6sNhP2zBIx4ngWiF0Ri0P+NeKWubzdvJtJFbykD/rAoGBAMAA\n2gvYleuiSt2sKgY5I7x1A3nWA9JvcLhpZZZBK1AqE+gBSrpn4c1xlmcCaiHQogZA\nSmhJdL9IeNyIZzQX1t9GT5o6Zi+X3npNur6qajzkEpjDNTomFf4JHb+1vmG2EWLS\n16tspM+WAm/2BPED9QZRO8KbW1Gbm+LSaNYfry9NAoGBAOFLzRto51t1uXNNxh/m\nWVMhl3PhzjGBKmyWPmahUSkh3HrS1hUzMhYQtZu0RiYiP59dL+D5vWcf+DtK2kQ4\n5qXZao+8HrhA5NnV+m0zkxHC/iQtLT3NhllueGqw71u/1kA8XKHIVSbxhyR6fweW\n9MiVGeXw/c4HALryneWOI4AS\n-----END PRIVATE KEY-----\n",
+  "client_email": "lms-testing@lms-project-445105.iam.gserviceaccount.com",
+  "client_id": "113683302692667338376",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/lms-testing%40lms-project-445105.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

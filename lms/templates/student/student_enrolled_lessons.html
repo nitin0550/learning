@@ -1,0 +1,113 @@
+<!-- student/templates/student/course_videos.html -->
+{% extends 'student/base.html' %}
+{% load static %}
+{% block main_head %}
+<style>
+    h1 {
+        font-size: 1.5em; /* Smaller heading */
+        color: #000000; /* Blue color for headings */
+        margin: 0; /* Remove default margin */
+    }
+    
+    p {
+        font-size: 0.9em; /* Smaller font for subtitle */
+        color: #555; /* Slightly darker gray */
+    }
+    
+    /* Video List Styles */
+    .video-list {
+        display: flex; /* Flexbox for layout */
+        flex-direction: column; /* Stack video cards vertically */
+        gap: 15px; /* Space between video cards */
+    }
+    
+    .video-card {
+        display: flex; /* Flexbox for card layout */
+        background-color: #f9f9f9; /* Light gray background */
+        border-radius: 5px; /* Rounded corners */
+        overflow: hidden; /* Clip overflow */
+        position: relative; /* For positioning dropdown */
+    }
+    
+    .thumbnail {
+        width: 120px; /* Smaller fixed width for thumbnails */
+        height: auto; /* Maintain aspect ratio */
+        border-radius: 5px;
+    }
+    
+    .video-info {
+        padding: 10px; /* Reduced padding */
+        flex-grow: 1; /* Take up remaining space */
+    }
+    
+    h2 {
+        font-size: 1em; /* Smaller font size for titles */
+        margin: 5px 0; /* Space around title */
+    }
+    .Assignments-btn{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .button {
+        background-color: #007bff;
+        color: white;
+        
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+        width: 90px;
+        align-items: end;
+    }
+    @media (max-width: 600px) {
+    .widget {
+        margin-top: 0;
+    }  
+}
+    </style>
+{% endblock main_head %}
+{% block main_body %}
+
+
+<div class="widget">
+    
+    <div class="video-list">
+        
+        <div class="Assignments-btn">
+            <h1>Lessons in {{ course.course_title }}</h1>
+            <a href="{% url 'student_course_assignments' course.id %}" class="button">Assignments</a>
+        </div>
+        
+        {% if lessons %}
+                {% for lessons in lessons %}
+                        <div class="video-card">
+                            <a href="{% url 'student_play_video' lessons.id %}">
+                                {% if lessons.thumbnail %}
+                                    <img src="{{ lessons.thumbnail.url }}" alt="{{ lessons.title }}" class="thumbnail">
+                                {% else %}
+                                    <img src="{% static 'images/default-thumbnail.png' %}" alt="Default thumbnail" class="thumbnail">
+                                {% endif %}
+                            </a>
+                            <div class="video-info">
+                                <a href="{% url 'student_play_video' lessons.id %}">
+                                    <h2>{{ lessons.lesson_title }}</h2>
+                                </a>
+                            </div>
+                            <div class="options">
+                                <i class="fas fa-ellipsis-v" onclick="toggleDropdown(event)"></i>
+                                <div class="dropdown">
+                                    
+                                </div>
+                            </div>
+                        </div>
+
+
+                {% endfor %}
+            
+        {% else %}
+            <p>No videos available in this course.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock main_body %}

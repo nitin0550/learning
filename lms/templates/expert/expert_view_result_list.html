@@ -1,0 +1,98 @@
+{% extends 'expert/base.html' %}
+{% block main_head %}
+<style>
+    .main-content {
+        width: auto;
+        max-width: 800px;
+        padding: 20px;
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        margin: 0 10px; /* Added margin for mobile spacing */
+    }
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .header h1 {
+        margin: 0;
+        font-size: 1.5rem;
+    }
+    .test-results {
+        list-style: none;
+        padding: 0;
+    }
+    .test-result-item {
+        background: #f9f9f9;
+        border: 1px solid #e0e0e0;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer; /* Change cursor to pointer */
+        transition: background 0.2s;
+    }
+    .test-result-item:hover {
+        background: #f1f1f1; /* Change background on hover */
+    }
+    .test-result-item h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        flex: 1; /* Allow title to take available space */
+    }
+    .test-result-item p {
+        margin: 0;
+        font-size: 0.9rem;
+        color: #555;
+    }
+    @media (max-width: 768px) {
+        .main-content {
+            padding: 15px;
+            margin: 0;
+            box-shadow: 0 0 0 rgba(0, 0, 0, 0.1);
+        }
+        .header h1 {
+            font-size: 1.5rem;
+        }
+        .test-result-item h3 {
+            font-size: 1rem; /* Smaller title size on mobile */
+        }
+        .test-result-item p {
+            font-size: 0.85rem; /* Smaller date size on mobile */
+        }
+    }
+
+</style>
+{% endblock main_head %}
+{% block main_body %}	
+<div class="widget">
+    <ul class="test-results">
+        {% if quizzes %}
+        {% for quiz in quizzes %}
+        <a href="{% url 'expert_view_quiz_results' quiz.id %}" class="btn">
+            <li class="test-result-item">
+                <div>
+                    <h3>{{ quiz.title }}</h3>
+                    <p>Test Date: {{ quiz.created_at|date:"M d, Y" }}</p>
+                </div>
+            
+            </li>
+        </a>
+        {% endfor %}
+        {% else %}
+        <p class="no-quizzes">You haven't created any quizzes yet.</p>
+        {% endif %}
+    </ul>
+</div>
+
+<script>
+    function openLink(link) {
+        window.location.href = link; // Navigate to the specified link
+    }
+</script>
+{% endblock main_body %}

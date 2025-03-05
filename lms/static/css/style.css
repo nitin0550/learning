@@ -1,0 +1,293 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+.container {
+    display: flex;
+    flex: 1;
+}
+.sidebar {
+    width: 250px;
+    background: #333;
+    color: #fff;
+    padding: 20px;
+    height: 100vh;
+    position: fixed;
+    overflow-y: auto;
+    /* Webkit browsers custom scrollbar */
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+    &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    &::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 3px;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+}
+.sidebar a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 16px;
+    display: block;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+}
+.sidebar a:hover {
+    background: #575757;
+}
+.main {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+.header {
+    background: #4b4b4b;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+.widget {
+    background: white;
+    border-radius: 5px;
+    padding: 15px;
+    margin: 5px 0 5px 290px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+h2 {
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    padding-bottom: 10px;
+}
+.icon-sidebar {
+    display: none; /* Hide by default */
+}
+.profile-pic {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    object-fit: cover;
+    margin-right: 10px;
+    
+}
+.notification-dot {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background-color: #ff0000;
+    border-radius: 50%;
+    
+}
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        padding: 0px;
+        padding-bottom: 35px;
+    }
+    .main {
+        padding: 0px;
+    }
+    .sidebar {
+        display: none; /* Hide sidebar on mobile */
+    }
+    .icon-sidebar {
+        display: flex; /* Show icon navigation on mobile */
+        justify-content: space-around;
+        background: #333;
+        padding: 10px;
+        position: fixed; /* Fix to the bottom */
+        bottom: 0;
+        width: 100%;
+        z-index: 1000; /* Ensure it stays above other content */
+    }
+    .icon-sidebar a {
+        font-size: 24px;
+        color: #fff;
+    }
+    .header h1 {
+        font-size: 1.5rem; /* Adjust header font size for mobile */
+    }
+    .widget {
+        margin: 0px;
+        box-shadow: 0 0 0px rgba(0,0,0,0.1);
+    }
+}
+/* Dropdown Styles */
+.options {
+    position: relative; /* For dropdown positioning */
+    cursor: pointer; /* Pointer cursor for options */
+}
+
+.options i {
+    margin-right: 10px; /* Set margin for three-dot icon */
+    font-size: 1.2em; /* Increase icon size */
+    color: #333;
+}
+
+.dropdown {
+    display: none; /* Hidden by default */
+    position: absolute; /* Absolute positioning */
+    top: 0; /* Align dropdown */
+    right: 0; /* Align dropdown */
+    background-color: white; /* Dropdown background */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Dropdown shadow */
+    border-radius: 5px; /* Rounded corners */
+    z-index: 10; /* Bring dropdown above others */
+}
+
+/* Show dropdown when toggled */
+.show {
+    display: block; /* Show dropdown */
+}
+.edit-button,
+.delete-button {
+    padding: 8px 10px; /* Button padding */
+    border: none; /* Remove border */
+    width: 100%; /* Full width buttons */
+    text-align: left; /* Align text to the left */
+    background-color: transparent; /* Transparent background */
+    cursor: pointer; /* Pointer cursor */
+}
+.edit-button:hover,
+.delete-button:hover {
+    background-color: #f0f0f0; /* Light gray on hover */
+}
+a{
+    display: block;
+    padding: 5px;
+    color: #4b4b4b;
+    text-decoration: none;
+}
+
+.submit-button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    width: auto;
+}
+.submit-button:hover {
+    background-color: #0056b3;
+}
+.cancel-button {
+    margin-left: 10px;
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    width: 50px;
+}
+.cancel-button:hover {
+    background-color: #0056b3;
+}
+.button_area {
+    display: flex;
+}
+
+.mobile-header {
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
+    color: white;
+    padding: 10px 15px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+.mobile-header nav a {
+        color: white;
+        margin-right: 24px;
+        text-decoration: none;
+        font-size: 23px;
+    }
+
+    .alert {
+        position: relative;
+        padding: 15px 45px 15px 15px; /* Increased right padding */
+        margin-bottom: 10px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .alert-error {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+    }
+    
+    .alert-success {
+        color: #155724;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+    .alert-warning {
+        color: #d3a200;
+        background-color: #fdfdd3;
+        border-color: #edfdb5;
+    }
+    .close-btn {
+        position: absolute;
+        right: 15px; /* Increased from 10px */
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        font-size: 20px;
+        font-weight: bold;
+        line-height: 1;
+        color: inherit;
+        opacity: 0.5;
+        padding: 8px; /* Added padding for better touch target */
+        margin-left: 15px; /* Added margin for spacing */
+        cursor: pointer;
+        width: 30px;
+        height: 30px;
+        display: flex; /* Changed from contents */
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .close-btn:hover {
+        opacity: 1;
+    }
+@media (max-width: 768px) {
+    .mobile-header {
+        display: flex; /* Show mobile header */
+    }
+    .widget {
+        margin-top: 50px;
+    } 
+    .dash_header{
+        display: none;
+    }  
+    .alert {
+        padding: 12px 40px 12px 12px;
+    }
+    .close-btn {
+        width: 24px;
+        height: 24px;
+        font-size: 18px;
+    }
+}

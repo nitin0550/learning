@@ -1,0 +1,176 @@
+{% extends 'expert/base.html' %}
+{% load static %}
+{% block main_head %}
+<style>
+.progress-container {
+    margin: 20px 0;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
+}
+.progress-phase {
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #007bff;
+}
+
+.progress-details {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 5px;
+}
+.progress {
+    width: 100%;
+    height: 20px;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.progress-bar {
+    width: 0%;
+    height: 100%;
+    background-color: #007bff;
+    transition: width 0.3s ease;
+}
+.progress-text {
+    text-align: center;
+    margin-top: 5px;
+    font-size: 14px;
+}
+header {
+    text-align: center; /* Center the heading */
+    margin-bottom: 20px; /* Space below the heading */
+}
+
+h1 {
+    font-size: 2em; /* Larger font size for heading */
+    color: #007bff; /* Blue color for headings */
+    margin: 0;
+}
+
+p {
+    color: #555; /* Slightly darker gray for subtitle */
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 15px; /* Space between form groups */
+    margin-right: 20px;
+}
+
+label {
+    display: block; /* Make labels block elements */
+    margin-bottom: 5px; /* Space below labels */
+    font-weight: bold; /* Bold font for labels */
+}
+
+input[type="text"],
+textarea,
+input[type="file"] {
+    width: 100%; /* Full width for inputs */
+    padding: 10px; /* Padding inside inputs */
+    border: 2px solid #007bff; /* Blue border */
+    border-radius: 5px; /* Rounded corners */
+    font-size: 1em; /* Font size */
+    transition: border-color 0.3s; /* Smooth border transition */
+}
+
+input[type="text"]:focus,
+textarea:focus,
+input[type="file"]:focus {
+    outline: none; /* Remove default outline */
+    border-color: #0056b3; /* Darker blue on focus */
+}
+
+.submit-button {
+    background-color: #007bff; /* Blue background */
+    color: white; /* White text */
+    border: none; /* Remove border */
+    padding: 12px 15px; /* Padding for button */
+    cursor: pointer; /* Pointer cursor */
+    border-radius: 5px; /* Rounded corners */
+    font-size: 1.1em; /* Larger font size */
+    transition: background-color 0.3s; /* Smooth transition */
+    width: auto; /* Full width for button */
+    margin-top: 20px; /* Space above the button */
+}
+
+.submit-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 600px) {
+    .container {
+        padding: 15px; /* Reduce padding on small screens */
+    }
+
+    h1 {
+        font-size: 1.5em; /* Smaller heading size */
+    }
+
+    .submit-button {
+        padding: 10px; /* Reduce button padding */
+    }
+}
+
+</style>
+{% endblock main_head %}
+{% block main_body %}
+<div class="widget">
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+            {{ message }}
+            <button type="button" class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <header>
+        <h1>Upload Course</h1>
+        <p>Fill in the details below to upload your course video.</p>
+    </header>
+    <form method="post" id="uploadForm" enctype="multipart/form-data">
+         {% csrf_token %}
+        <div class="form-group">
+            <label for="course-title">{{ course_form.course_title.label }}</label>
+            {{ course_form.course_title }}
+        </div>
+        <div class="form-group">
+            <label for="course-title">{{ course_form.about_course.label }}</label>
+            {{ course_form.about_course }}
+        </div>
+        <div class="form-group">
+            <label for="video-title">{{ lesson_form.lesson_title.label }}</label>
+            {{ lesson_form.lesson_title }}
+        </div>
+        <div class="form-group">
+            <label for="video-description">{{ lesson_form.description.label }}</label>
+            {{ lesson_form.description }}
+        </div>
+        <div class="form-group">
+            <label for="course-video">{{ lesson_form.video.label }}</label>
+            {{ lesson_form.video }}
+        </div>
+        <div class="form-group">
+            <label for="thumbnail">{{ lesson_form.thumbnail.label }}</label>
+            {{ lesson_form.thumbnail }}
+        </div>
+        <div class="form-group">
+            <label for="course-price">{{ course_form.price.label }}</label>
+            {{ course_form.price }}
+        </div>
+        <div class="form-group">
+            <label for="course-price">{{ course_form.enrollment_duration.label }}</label>
+            {{ course_form.enrollment_duration }}
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="submit-button">Upload Course</button>
+        </div>
+        
+    </form>
+</div>
+{% endblock main_body %}

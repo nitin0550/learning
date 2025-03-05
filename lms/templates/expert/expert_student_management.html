@@ -1,0 +1,127 @@
+{% extends 'expert/base.html' %}
+{% load static %}
+{% block main_head %}
+
+<style>
+    
+    .student-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #ccc;
+    }
+    .student-details {
+        flex: 1;
+    }
+    .student-actions {
+        display: flex;
+        gap: 10px;
+    }
+    .student-actions button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+    .student-actions button:hover {
+        background: #0056b3;
+    }
+    
+    .student-list {
+        padding: 0 0 20px 0;
+        
+        margin: auto;
+    }
+    .notification-card {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px 0;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .search-container {
+        display: flex;
+        justify-content: center; /* Center the search bar */
+        margin: 20px 0; /* Space around the search bar */
+        flex-wrap: wrap; /* Allow wrapping for smaller screens */
+    }
+    #search {
+        flex: 1;
+        padding: 12px; /* Increased padding for input */
+        font-size: 1.1em; /* Slightly larger font size */
+        border: 2px solid #007bff; /* Blue border */
+        border-radius: 10px 0 0 10px; /* Rounded corners */
+        width: 100%; /* Full width on small screens */
+        max-width: 320px; /* Limit max width */
+        margin-bottom: 10px; /* Space below input */
+        transition: border-color 0.3s; /* Smooth border transition */
+    }
+    #search:focus {
+        outline: none; /* Remove default outline */
+        border-color: #0056b3; /* Darker blue on focus */
+    }
+    .action-button {
+        height:49px;
+        background-color: #007bff; /* Blue background */
+        color: white; /* White text */
+        border: none; /* Remove border */
+        padding: 12px 15px; /* Padding for button */
+        cursor: pointer; /* Pointer cursor */
+        border-radius: 0 10px 10px 0; /* Rounded corners */
+        font-size: 1.1em; /* Larger font size */
+        transition: background-color 0.3s, transform 0.2s; /* Smooth transition */
+    }
+    .action-button:hover {
+        background-color: #0056b3; /* Darker blue on hover */
+        transform: scale(1.05); /* Slight scale effect on hover */
+    }
+    @media (max-width: 768px) {
+    .action-button {
+        height:48px;
+    }
+    }
+</style>
+
+{% endblock main_head %}
+{% block main_body %}
+<div class="widget">
+    <h2>Enrolled students</h2>
+    <!-- Search form -->
+    <form class="search-container" method="get" action="{% url 'expert_student_management' %}">
+        <input type="text" name="search" id="search" value="{{ search_query }}" placeholder="Enter username" class="search">
+        <button class="action-button" type="submit">Search</button>
+    </form>
+    <div class="student-list">
+        {% for enrollment in enrollments %}
+        <div class="notification-card">
+            <div class="student-details">
+                <strong>{{ enrollment.student.username }}</strong><br>
+                <small>{{ enrollment.course.course_title }}</small>
+                <small>{{ enrollment.enrolled_at|date:"F j, Y" }}</small>
+            </div>
+            <div class="student-actions" style="display: none;">
+                <!-- Remove button -->
+                <form method="post" action="{% url 'remove_enrollment' enrollment.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" onclick="return confirm('Are you sure you want to remove {{ enrollment.student.username }} from {{ enrollment.course.title }}?');">
+                        Remove
+                    </button>
+                </form>
+
+            </div>
+        </div>
+        {% empty %}
+            <tr>
+                <td colspan="3">No students found.</td>
+            </tr>
+        {% endfor %}
+    </div>
+</div>
+{% endblock main_body %}

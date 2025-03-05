@@ -1,0 +1,62 @@
+
+{% extends 'student/base.html' %}
+{% load static %}
+{% block main_head %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Communication - Teacher Dashboard</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/chat.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    {% endblock main_head %}
+    {% block main_body %}	
+    <div class="widget">
+        <div class="chat-header">
+            <button class="close-button" onclick="closeChat()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            Contacts
+        </div>
+
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                {{ message }}
+                <button type="button" class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+            {% for expert in experts %}
+            <div class="contact-card" id="contactJane" onclick="openChat('{{ expert.username }}')">
+
+                {% if expert.expertprofile.profile_picture %}
+                    <img src="{{ expert.expertprofile.profile_picture.url }}" class="contact-avatar" alt="Profile Picture">
+                {% else %}
+                    <img src="{% static 'images/default-profile.png' %}" alt="Jane Doe" class="contact-avatar">
+                {% endif %}
+                <p class="contact-name"><a href="{% url 'chat' expert.id %}">{{ expert.username }}</a>
+                    {% if expert.unread_count > 0 %}
+                    - New messages: {{ expert.unread_count }}
+                    {% endif %}
+                </p>
+                <div class="dropdown" id="dropdownJane">
+                    <button onclick="viewProfile(event, '{{ expert.username }}')">View Profile</button>
+                    <form action="{% url 'student_delete_chat' expert.id %}" method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="delete-button">Delete All Chat</button>
+                    </form>
+                </div>
+                <button class="dropdown-icon" onclick="toggleDropdown(event, 'dropdownJane')">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+            </div>
+            {% empty %}
+                <li>No experts found.</li>
+            {% endfor %}
+            <!-- Add more contacts as needed -->
+       
+    </div>
+    <script src="{% static 'js/chat.js' %}"></script>
+    {% endblock main_body %}

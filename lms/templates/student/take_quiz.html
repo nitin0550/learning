@@ -1,0 +1,172 @@
+<!-- student/templates/student/take_quiz.html -->
+{% extends 'student/base.html' %}
+{% load student_quiz_filters %}
+{% load student_filters %}
+{% block main_head %}
+<style>
+.quiz-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.question {
+    background: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.options {
+    margin-top: 10px;
+}
+
+.option {
+    display: block;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.option:hover {
+    background-color: #f8f9fa;
+}
+.timer {
+    font-size: 1.2em;
+    color: #dc3545;
+    font-weight: bold;
+    margin: 10px 0;
+}
+</style>
+{% endblock %}
+
+{% block main_body %}
+<div class="mobile-header">
+    <div class="logo">My Courses</div>
+    <nav>
+        <a style="color: #dc3545;">Time Remaining:<span id="timer"></span></a>
+    </nav>
+</div>
+<div class="widget">
+<div class="quiz-container">
+    <h2>{{ quiz.title }}</h2>
+    <form method="post" action="{% url 'submit_quiz' quiz.id %}">
+        {% csrf_token %}
+        {% for question in questions %}
+        <div class="question">
+            <p>{{ forloop.counter }}. {{ question.question_text }}</p>
+            <div class="options">
+                {% if question.question_type == 'MCQ' %}
+                    {% for i in '1234'|make_list %}
+                        {% with option=question|student_get_option:i %}
+                            {% if option %}
+                            <label class="option">
+                                <input type="radio" name="q{{ question.id }}" value="{{ i }}">
+                                {{ option }}
+                            </label>
+                            {% endif %}
+                        {% endwith %}
+                    {% endfor %}
+                {% elif question.question_type == 'TF' %}
+                    <label class="option">
+                        <input type="radio" name="q{{ question.id }}" value="true"> True
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q{{ question.id }}" value="false"> False
+                    </label>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        
+        <button type="submit" class="btn btn-primary">Submit Quiz</button>
+    </form>
+</div>
+</div>
+
+<script>
+function submitQuiz() {
+    const quizForm = document.getElementById('quizForm');
+    const submitButton = document.querySelector('button[type="submit"]');
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    // Disable submit button
+    submitButton.disabled = true;
+    // Show loading state
+    //document.querySelector('button[type="submit"]').disabled = true;
+
+    fetch(quizForm.action, {
+        method: 'POST',
+        body: new FormData(quizForm),
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            if (isTimeout) {
+                alert('Time up! Quiz submitted automatically.');
+            }
+            window.location.href = "{% url 'student_quiz_list' %}";
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        window.location.href = "{% url 'student_quiz_list' %}";
+    });
+}
+
+function validateForm() {
+    const questions = document.querySelectorAll('.question');
+    let allAnswered = true;
+    
+    questions.forEach(question => {
+        const radios = question.querySelectorAll('input[type="radio"]');
+        const isAnswered = Array.from(radios).some(radio => radio.checked);
+        if (!isAnswered) {
+            allAnswered = false;
+            question.classList.add('unanswered');
+        } else {
+            question.classList.remove('unanswered');
+        }
+    });
+    
+    return allAnswered;
+}
+
+function startTimer(duration) {
+    let timer = duration * 60;
+    const timerDisplay = document.getElementById('timer');
+    
+    const countdown = setInterval(function() {
+        const minutes = Math.floor(timer / 60);
+        const seconds = timer % 60;
+        timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+        if (--timer < 0) {
+            clearInterval(countdown);
+            const submitButton = document.querySelector('button[type="submit"]');
+            submitButton.click();
+        }
+    }, 1000);
+}
+
+window.onload = function() {
+    const quizDuration = {{ quiz.duration|minutes }};
+    startTimer(quizDuration);
+    
+    // Prevent form default submission
+    document.getElementById('quizForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        submitQuiz();
+    });
+};
+</script>
+
+{% endblock %}

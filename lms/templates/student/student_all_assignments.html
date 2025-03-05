@@ -1,0 +1,52 @@
+<!-- student/templates/student/student_all_assignments.html -->
+{% extends 'student/base.html' %}
+
+{% block main_head %}
+<style>
+.assignment-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.course-title {
+    color: #007bff;
+    font-size: 0.9em;
+    margin-bottom: 5px;
+}
+
+.due-date {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.assignment-title {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+.widget{
+    margin-top: 0;
+}
+</style>
+{% endblock %}
+
+{% block main_body %}
+<div class="widget">
+    <h2>All Assignments</h2>
+    
+    {% if assignments %}
+        {% for assignment in assignments %}
+        <div class="assignment-card">
+            <div class="course-title">{{ assignment.course.course_title }}</div>
+            <h3 class="assignment-title">{{ assignment.title }}</h3>
+            <p>{{ assignment.description }}</p>
+            <p class="due-date">Due: {{ assignment.due_date|date:"F d, Y" }}</p>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No assignments available.</p>
+    {% endif %}
+</div>
+{% endblock %}

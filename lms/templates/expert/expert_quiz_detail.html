@@ -1,0 +1,155 @@
+{% extends 'expert/base.html' %}
+{% load static %}
+
+{% block main_head %}
+<style>
+.quiz-detail {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 0 15px;
+}
+
+.quiz-header {
+    margin-bottom: 30px;
+}
+
+.quiz-header h1 {
+    margin: 0 0 10px 0;
+}
+
+.quiz-description {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.question-card {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.question-type {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-bottom: 10px;
+    background: #e9ecef;
+}
+
+.question-text {
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.options-list {
+    list-style: none;
+    padding: 0;
+}
+
+.option-item {
+    padding: 8px 12px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+}
+
+.correct-answer {
+    background: #d4edda;
+    border-color: #c3e6cb;
+}
+.quiz-duration {
+    margin: 10px 0;
+    color: #666;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.quiz-duration i {
+    color: #000000;
+}
+
+@media (max-width: 768px) {
+    .quiz-detail {
+        padding: 0 10px;
+    }
+    
+    .question-text {
+        font-size: 16px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block main_body %}
+<div class="widget">
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+            {{ message }}
+            <button type="button" class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+<div class="quiz-detail">
+    <div class="quiz-header">
+        <h1>{{ quiz.title }}</h1>
+        <div class="quiz-description"> {{ quiz.description }}</div>
+        <p>Duration: <i>{{ quiz.duration }} minutes</i></p>
+        <p>Created on: <i>{{ quiz.created_at|date:"F d, Y" }}</i></p>
+        <p>Course: <i>{{ quiz.course.course_title }}</i></p>
+
+    </div>
+
+    {% for question in questions %}
+    <div class="question-card">
+        <div class="question-type">{{ question.get_question_type_display }}</div>
+        <div class="question-text">{{ question.question_text }}</div>
+        
+        {% if question.question_type == 'MCQ' %}
+        <ul class="options-list">
+            {% if question.option_1 %}
+            <li class="option-item {% if question.correct_answer == '1' %}correct-answer{% endif %}">
+                {{ question.option_1 }}
+            </li>
+            {% endif %}
+            {% if question.option_2 %}
+            <li class="option-item {% if question.correct_answer == '2' %}correct-answer{% endif %}">
+                {{ question.option_2 }}
+            </li>
+            {% endif %}
+            {% if question.option_3 %}
+            <li class="option-item {% if question.correct_answer == '3' %}correct-answer{% endif %}">
+                {{ question.option_3 }}
+            </li>
+            {% endif %}
+            {% if question.option_4 %}
+            <li class="option-item {% if question.correct_answer == '4' %}correct-answer{% endif %}">
+                {{ question.option_4 }}
+            </li>
+            {% endif %}
+        </ul>
+        {% elif question.question_type == 'TF' %}
+        <ul class="options-list">
+            <li class="option-item {% if question.correct_answer == '1' %}correct-answer{% endif %}">True</li>
+            <li class="option-item {% if question.correct_answer == '2' %}correct-answer{% endif %}">False</li>
+        </ul>
+        {% else %}
+        <div class="correct-answer">
+            Correct Answer: {{ question.correct_answer }}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+</div>
+{% endblock %}

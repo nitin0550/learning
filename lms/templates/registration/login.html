@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/authentication.css' %}">
+</head>
+<body>
+    <div class="container">
+        {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+            {{ message }}
+            <button type="button" class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+        <h2>Login</h2>
+        {% if form.errors %}
+            <p style="color:red;">Invalid username or password.*</p>
+        {% endif %}
+        <form method="POST"> <!-- Adjust the action URL accordingly -->
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}">Username:</label>
+                {{ form.username }}
+            </div>        
+            <div class="form-group">
+                <label for="{{ form.password.id_for_label }}">Password:</label>
+                {{ form.password }}
+            </div>
+            <button type="submit">Login</button>
+        </form>
+        <div class="forgot-password">
+            <p><a href="{% url 'request_otp' %}">Forgot Password?</a></p>
+        </div>
+        <div class="register-link">
+            <p>Don't have an account? <a href="{% url 'student_register' %}">Register here</a></p>
+            <p>Register as a expert: <a href="{% url 'expert_register' %}">Expert</a></p>
+        </div>
+        
+        
+    </div>
+    
+</body>
+</html>

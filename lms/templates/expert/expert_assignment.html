@@ -1,0 +1,164 @@
+{% extends 'expert/base.html' %}
+{% load static %}
+{% block main_head %}
+<style>
+    .assignment-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #ccc;
+    }
+    .assignment-details {
+        flex: 1;
+    }
+    .assignment-actions {
+        display: flex;
+        gap: 10px;
+    }
+    .assignment-actions button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+    .assignment-actions button:hover {
+        background: #0056b3;
+    }
+    .add-assignment {
+        margin: 15px 0;
+    }
+    .add-assignment input, .add-assignment textarea {
+        width: calc(100% - 20px);
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    .add-assignment button {
+        background: #28a745;
+    }
+    .add-assignment button:hover {
+        background: #218838;
+    }
+    @media (max-width: 768px) {
+    .widget {
+        margin-bottom: 25px;
+    }   
+}
+    
+</style>
+{% endblock main_head %}
+{% block main_body %}
+<div class="widget">
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+            {{ message }}
+            <button type="button" class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <div class="add-assignment">
+        <h2>Add New Assignment</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.title }}
+            {{ form.description }}
+            {{ form.due_date }}
+            {{ form.course.label_tag }}
+            {{ form.course }}
+        <button type="submit">Add Assignment</button>
+        </form>
+         <!-- JavaScript to auto-insert hyphens in the date field -->
+         <script>
+            document.addEventListener('DOMContentLoaded', function() {
+              const dueDateInput = document.querySelector('input[name="due_date"]');
+        
+              dueDateInput.addEventListener('input', function(event) {
+                let value = event.target.value.replace(/[^0-9]/g, '');  // Remove non-numeric characters
+        
+                // Only format when we have enough characters for year, month, and day
+                if (value.length > 4) {
+                  value = value.slice(0, 4) + '-' + value.slice(4);
+                }
+                if (value.length > 7) {
+                  value = value.slice(0, 7) + '-' + value.slice(7);
+                }
+        
+                // Limit the input length to 10 characters (YYYY-MM-DD)
+                event.target.value = value.slice(0, 10);
+              });
+            });
+          </script>
+    </div>
+</div>
+    <div class="widget">
+        <h2>Assignments</h2>
+        {% if assignments %}
+        <div id="assignmentList">
+            <!-- More assignment items can be added here -->
+            {% for assignment in assignments %}
+                <div>
+                    <div class="assignment-item">
+                        <div class="assignment-details">
+                            <h3>{{ assignment.title }}</h3>
+                            <p>{{ assignment.description }}</p>
+                            <small>Due: {{ assignment.due_date|date:"Y-m-d" }}</small><br>
+                            <small>Course: {{ assignment.course.course_title }}</small>
+                        </div>
+                        <div class="options">
+                            <i class="fas fa-ellipsis-v" onclick="toggleDropdown(event)"></i>
+                            <div class="dropdown">
+                                <button class="delete-button"><a href="{% url 'expert_assignment' assignment.id %}" class="btn btn-primary">Edit</a></button>
+                                <form action="{% url 'delete_assignment' assignment.id %}" method="post" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="delete-button" onclick="return confirm('Are you sure you want to delete this assignment?');">
+                                      Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                No assignments available.
+            {% endfor %}
+        </div>
+        {% else %}
+<p>No assignments created yet.</p>
+{% endif %}
+    </div>
+    <script>
+        function toggleDropdown(event) {
+            const dropdowns = document.querySelectorAll('.dropdown');
+            const currentDropdown = event.target.nextElementSibling; // Get the dropdown associated with the clicked icon
+
+            // Close all dropdowns except the current one
+            dropdowns.forEach(dropdown => {
+                if (dropdown !== currentDropdown) {
+                    dropdown.classList.remove('show'); // Close other dropdowns
+                }
+            });
+        
+            // Toggle the current dropdown
+            currentDropdown.classList.toggle('show');
+        }
+        window.onclick = function(event) {
+            if (!event.target.matches('.fas.fa-ellipsis-v')) {
+                const dropdowns = document.querySelectorAll('.dropdown');
+                dropdowns.forEach(dropdown => {
+                    dropdown.classList.remove('show'); // Close dropdown
+                });
+            }
+        };
+  </script>
+    <!-- Add necessary JS files -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+{% endblock main_body %}

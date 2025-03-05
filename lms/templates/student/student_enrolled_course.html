@@ -1,0 +1,137 @@
+{% extends 'student/base.html' %}
+{% load static %}
+{% block main_head %}
+
+<style>
+    .widget {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 20px;
+        max-width: 1200px;
+    }
+    .course-card {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px;
+        width: calc(33% - 40px); /* Default to three cards per row on desktop */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+    }
+    .course-card:hover {
+        transform: scale(1.02);
+    }
+    
+    .course-image {
+        width: 100%; /* Full width for desktop */
+        height: 150px; /* Fixed height */
+        object-fit: cover; /* Cover the area nicely */
+        border-radius: 5px;
+    }
+    .course-title {
+        font-size: 20px;
+        margin: 10px 0;
+    }
+    .course-description {
+        color: #555;
+        font-size: 14px;
+    }
+    .button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 10px;
+    }
+    
+    /* Mobile styling */
+    @media (max-width: 768px) {
+        .course-list {
+            flex-direction: column; /* Stack the courses vertically */
+        }
+        .course-card {
+            width: 100%; /* Full width on mobile */
+            margin: 5px 0; /* Reduced margin for better spacing */
+            display: flex; /* Flexbox for list style */
+            align-items: center; /* Center items vertically */
+        }
+        .course-image {
+            width: 150px; /* Set width to 150px for mobile */
+            height: auto; /* Auto height to maintain aspect ratio */
+            object-fit: cover; /* Maintain aspect ratio */
+            margin-right: 15px; /* Spacing between image and text */
+        }
+        .course-content {
+            flex-grow: 1; /* Allow text content to grow */
+        }
+        
+    }
+    
+    /* Desktop styling */
+    @media (min-width: 769px) {
+        .course-list {
+            flex-direction: row; /* Arrange courses in a row on desktop */
+        }
+    }
+</style>
+{% endblock main_head %} 
+
+<!-- Header -->
+{% block main_header %}
+{% endblock main_header %}
+
+{% block main_body %}
+{% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+            {{ message }}
+            <button type="button" class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+<div class="mobile-header">
+    <div class="logo">My Courses</div>
+    <nav style="display: flex;">
+        <a href="{% url 'student_all_assignments' %}"><i class="fas fa-clipboard-list"></i></a>
+        <a href="{% url 'student_quiz_list' %}"><i class="fas fa-question-circle"></i></a>
+        
+    </nav>
+</div>
+<div class="widget">
+
+    {% if courses %}
+        {% for course in courses %}
+                <div class="course-card">
+                    {% with first_lesson=course.lessons.first %}
+                    <div class="thumbnail-wrapper">
+                        <img src="{% if first_lesson.thumbnail %}
+                                    {{ first_lesson.thumbnail.url }}
+                                {% else %}
+                                    {% static 'images/default-thumbnail.png' %}
+                                {% endif %}"
+                             alt="{{ course.course_title|default:'Course' }} thumbnail"
+                             class="course-image">
+                    </div>
+                    {% endwith %}
+                    <div class="course-content">
+                        <h2 class="course-title">{{ course.course_title }}</h2>
+                        <p class="course-description">Instructor: {{ course.expert.username }}</p>
+                        <a href="{% url 'student_enrolled_lessons' course.id %}" class="button">View Course</a>
+                    </div>
+                    
+                </div>
+        {% endfor %}
+    {% else %}
+        <p>You are not enrolled in any courses yet.</p>
+    {% endif %}
+    
+</div>
+
+{% endblock main_body %}

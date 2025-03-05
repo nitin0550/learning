@@ -1,0 +1,128 @@
+.widget{
+    margin-top: 0;
+}
+.container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.contacts {
+    width: 100%;
+    background: #ffffff;
+    color: #333;
+    padding: 10px;
+    border-right: 1px solid #ddd;
+    overflow-y: auto;
+    position: relative;
+}
+.close-button {
+    position: relative;
+    top: 10px;
+    left: 10px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: none;
+    
+}
+.contact-card {
+    display: flex;
+    align-items: center;
+    background: #e9ecef;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    padding: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+    position: relative;
+}
+.contact-name a{
+    color: #4b4b4b;
+    font-size: 20px;
+}
+.contact-card:hover {
+    background: #dee2e6;
+}
+.contact-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+.contact-name {
+    font-size: 1rem;
+    margin: 0;
+    flex: 1;
+}
+.dropdown {
+    display: none;
+    position: absolute;
+    right: 10px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    z-index: 1;
+}
+.dropdown button {
+    display: block;
+    width: 100%;
+    border: none;
+    background: none;
+    padding: 10px;
+    text-align: left;
+    color: #333;
+    cursor: pointer;
+}
+.dropdown button:hover {
+    background-color: #f1f1f1;
+}
+.chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    background: #ffffff;
+    display: none;
+}
+.chat-header {
+    padding: 15px;
+    font-size: 20px;
+    background-color: #333;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 20px;
+    position: sticky; /* Make header sticky */
+    top: 0; /* Position it at the top */
+    z-index: 1; /* Keep it above other content */
+}
+@media (max-width: 768px) {
+    .contacts {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        background: #ffffff;
+        z-index: 10;
+        padding: 10px;
+        display: block;
+    }
+    .close-button{
+        position: absolute;
+        display: flex;
+    }
+    .icon-sidebar{
+        display: none;
+    }
+    .widget{
+        padding: 0;
+        padding-bottom: 20px;
+    }
+    .contact-card{
+        margin: 10px;
+    }
+    
+}

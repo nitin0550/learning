@@ -1,0 +1,307 @@
+{% extends 'student/base.html' %}
+{% load static %}
+{% block main_head %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+   .catalog {
+       padding: 20px;
+       display: grid;
+       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+       gap: 20px;
+   }
+   .course-card {
+       background-color: white;
+       border-radius: 8px;
+       padding: 15px;
+       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+       transition: transform 0.2s;
+   }
+   .course-card:hover {
+       transform: scale(1.02);
+   }
+   .course-card img {
+       width: 100%;
+       border-radius: 8px;
+       height: 150px;
+       object-fit: cover;
+   }
+   .course-card h3 {
+       margin: 10px 0;
+       font-size: 20px;
+   }
+   .instructor {
+       color: #666;
+       font-size: 14px;
+   }
+   .rating {
+       color: #FFD700;
+   }
+   .price {
+       font-weight: bold;
+       color: #28a745;
+       margin-top: 5px;
+       font-size: 18px;
+   }
+   .course-card p {
+       color: #555;
+   }
+   .course-card button {
+       background-color: #007bff;
+       color: white;
+       border: none;
+       border-radius: 5px;
+       padding: 10px;
+       cursor: pointer;
+       margin-top: 10px;
+       width: 100%;
+   }
+   .course-card button:hover {
+       background-color: #0056b3;
+   }
+
+   /* Modal Styles */
+   .modal {
+       display: none;
+       position: fixed;
+       z-index: 1000;
+       left: 0;
+       top: 0;
+       width: 100%;
+       height: 100%;
+       overflow: auto;
+       background-color: rgba(0, 0, 0, 0.7);
+       padding-top: 60px;
+   }
+   .modal-content {
+       background-color: #fff;
+       margin: 5% auto;
+       padding: 20px;
+       border: 1px solid #888;
+       width: 90%;
+       max-width: 500px;
+       border-radius: 8px;
+   }
+   .close {
+       color: #aaa;
+       float: right;
+       font-size: 28px;
+       font-weight: bold;
+   }
+   .close:hover,
+   .close:focus {
+       color: black;
+       text-decoration: none;
+       cursor: pointer;
+   }
+   .filter-title {
+       margin-bottom: 10px;
+       font-weight: bold;
+       font-size: 18px;
+   }
+   .filter-group {
+       margin-bottom: 15px;
+   }
+   .filter-group label {
+       margin-right: 10px;
+       color: #555;
+   }
+   .mobile-header {
+        display: flex;
+        
+   }
+   
+   @media (min-width: 768px){
+        .mobile-header{
+            margin-left: 290px;
+            width: 73%;
+        }
+   }
+   /* Responsive Styles */
+   @media (max-width: 768px) {
+       .catalog {
+           padding: 0;
+        }
+       .course-card {
+           padding: 10px;
+        }
+       .course-card img {
+         width: 100%;
+         height: 150px;
+        }
+       .course-card button {
+           width: auto; /* Allow button to shrink */
+        }
+        .mobile-header{
+            margin: 0;
+            width: 95%;
+        }
+   }
+   /* Search Container */
+.search-container {
+    display: flex;
+    justify-content: center; /* Center the search bar */
+    margin: 0 0; /* Space around the search bar */
+    flex-wrap: wrap; /* Allow wrapping for smaller screens */
+}
+
+.search {
+    flex: 1;
+    padding: 12px; /* Increased padding for input */
+    font-size: 1.1em; /* Slightly larger font size */
+    border: 2px solid #007bff; /* Blue border */
+    border-radius: 10px 0 0 10px; /* Rounded corners */
+    width: 100%; /* Full width on small screens */
+    max-width: 320px; /* Limit max width */
+    
+    transition: border-color 0.3s; /* Smooth border transition */
+}
+
+.search:focus {
+    outline: none; /* Remove default outline */
+    border-color: #0056b3; /* Darker blue on focus */
+}
+/* Button Styles */
+.action-button {
+    height:49px;
+    background-color: #007bff; /* Blue background */
+    color: white; /* White text */
+    border: none; /* Remove border */
+    padding: 12px 15px; /* Padding for button */
+    cursor: pointer; /* Pointer cursor */
+    border-radius: 0 10px 10px 0; /* Rounded corners */
+    font-size: 1.1em; /* Larger font size */
+    transition: background-color 0.3s, transform 0.2s; /* Smooth transition */
+}
+
+.action-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: scale(1.05); /* Slight scale effect on hover */
+}
+@media (max-width: 768px) {
+.action-button {
+    height:48px;
+}
+}
+
+</style>
+
+{% endblock main_head %} 
+
+<!-- Header -->
+{% block main_header %}
+
+
+{% endblock main_header %}
+
+{% block main_body %}
+<!-- Mobile Header -->
+
+
+<div class="mobile-header">
+        <form class="search-container" method="GET" action="{% url 'student_course_search' %}">
+            {{ form.query }}
+            <button class="action-button" type="submit"><i class="fas fa-search"></i> </button>
+        </form>
+        <nav>
+        <a href="#"><i class="fas fa-filter filter-icon" id="filterIcon"></i></a>
+        </nav>
+</div>
+
+
+<div class="widget" style="margin-top: 50px;">
+<div class="catalog">
+    {% load enrollment_tags %}
+    {% for course in courses %}
+   <div class="course-card">
+       
+       <!-- Display the first video's thumbnail if available -->
+        {% if course.lessons.first %}
+
+        {% if course.lessons.first.thumbnail %}
+            <img src="{{ course.lessons.first.thumbnail.url }}" alt="{{ course.course_title }} thumbnail" width="150">
+        {% else %}
+            <img src="{% static 'images/default-thumbnail.png' %}" alt="Default thumbnail" class="thumbnail">
+        {% endif %}
+
+
+
+       
+    {% else %}
+   <img src="https://via.placeholder.com/250x150" alt="Course Image">
+   {% endif %}
+       <h3>{{ course.course_title }}</h3>
+       <div class="instructor">Instructor: {{ course.expert.username }}</div>
+       <div class="price">₹{{ course.price }}</div>
+       <p>{{ course.about_course }}.</p>
+       
+        <!-- Check enrollment status with the custom filter -->
+        {% if not course.is_enrolled %}
+        <form action="{% url 'enroll_in_course' course.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit">Enroll</button>
+        </form>
+    {% else %}
+        <p>Enrolled</p>
+    {% endif %}
+
+   </div>
+   {% empty %}
+        <li>No courses found.</li>
+    {% endfor %}
+</div>
+</div>
+
+<!-- Filter Modal -->
+<div id="filterModal" class="modal">
+   <div class="modal-content">
+       <span class="close" id="closeModal">&times;</span>
+       <div class="filter-title">Filters</div>
+       <div class="filter-group">
+           <label for="category">Category:</label>
+           <select id="category">
+               <option value="">All Categories</option>
+               <option value="programming">Programming</option>
+               <option value="design">Design</option>
+               <option value="marketing">Marketing</option>
+           </select>
+       </div>
+       <div class="filter-group">
+           <label for="difficulty">Difficulty:</label>
+           <select id="difficulty">
+               <option value="">All Levels</option>
+               <option value="beginner">Beginner</option>
+               <option value="intermediate">Intermediate</option>
+               <option value="advanced">Advanced</option>
+           </select>
+       </div>
+       <button style="padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">Apply Filters</button>
+   </div>
+
+</div>
+<script>
+   // Get modal element
+   const modal = document.getElementById("filterModal");
+   const filterIcon = document.getElementById("filterIcon");
+   const closeModal = document.getElementById("closeModal");
+
+   // Open modal when filter icon is clicked
+   filterIcon.onclick = function() {
+       modal.style.display = "block";
+   }
+
+   // Close modal when the 'x' is clicked
+   closeModal.onclick = function() {
+       modal.style.display = "none";
+   }
+
+   // Close modal when clicking outside of the modal content
+   window.onclick = function(event) {
+       if (event.target == modal) {
+           modal.style.display = "none";
+       }
+   }
+</script>
+
+
+{% endblock main_body %}

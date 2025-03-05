@@ -1,0 +1,80 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/authentication.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h2>Expert Register</h2>
+        <form method="POST"> <!-- Adjust the action URL accordingly -->
+            {% csrf_token %}
+            <div style="color: red;">
+            {{ form.non_field_errors }}
+        </div>
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}">{{ form.username.label }}:<span class="required"></span></label>
+                {{ form.username }}
+                {% for error in form.username.errors %}
+                {% if error != "This field is required." %}
+                    <div class="error">{{ error }}</div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}:<span class="required"></span></label>
+                {{ form.first_name }}
+                {% for error in form.first_name.errors %}
+                {% if error != "This field is required." %}
+                    <div class="error">{{ error }}</div>
+                {% endif %}
+                {% endfor %}
+
+            </div>
+            <div class="form-group">
+                <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}:<span class="required"></span></label>
+                {{ form.last_name }}
+                {% for error in form.last_name.errors %}
+                {% if error != "This field is required." %}
+                    <div class="error">{{ error }}</div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}">{{ form.email.label }}:<span class="required"></span></label>
+                {{ form.email }}
+                {% for error in form.email.errors %}
+                {% if error != "This field is required." %}
+                    <div class="error">{{ error }}</div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.password.id_for_label }}">{{ form.password.label }}:<span class="required"></span></label>
+                {{ form.password }}
+                {% for error in form.password.errors %}
+                {% if error != "This field is required." %}
+                    <div class="error">{{ error }}</div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.password_confirm.id_for_label }}">{{ form.password_confirm.label }}:<span class="required"></span></label>
+                {{ form.password_confirm }} 
+                {% for error in form.password_confirm.errors %}
+                {% if error != "This field is required." %}
+                    <div class="error">{{ error }}</div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            <button type="submit">Register</button>
+        </form>
+        <div class="already-have-account">
+            <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p> <!-- Adjust the link as necessary -->
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,178 @@
+        .widget {
+            padding: 0;
+            margin-top: 0;
+            display: flex;
+            flex-direction: column;
+            height: 92vh;
+        }
+        .close-button {
+            position: relative;
+            top: 10px;
+            left: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            position: absolute;
+            display: flex;
+
+        }
+
+        /* Header with other user's name */
+        .chat-header {
+            padding: 15px;
+            font-size: 20px;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            position: sticky; /* Make header sticky */
+            top: 0; /* Position it at the top */
+            z-index: 1; /* Keep it above other content */
+        }
+
+        /* Chat box where messages are displayed */
+        .chat-box {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            background-color: #e0e0e0;
+            max-height: calc(92vh - 140px);
+        }
+
+        /* Message styles */
+        .message {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 40%;
+        }
+        .message.sender {
+            align-self: flex-end;
+            background-color: #4b4b4b;
+            color: white;
+            border-radius: 12px 0 12px 12px;
+        }
+        .message.receiver {
+            align-self: flex-start;
+            background-color: #f7f7f7;
+            color: #333;
+            border-radius: 0 12px 12px 12px;
+        }
+
+        /* Footer with message input */
+        .chat-footer {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ccc;
+            background-color: #fff;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+
+        .send-button {
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s ease;
+        }
+        .send-button:hover {
+            background-color: #4b4b4b;
+        }
+
+        .message-time {
+        font-size: 0.7em;
+        color: #888;
+        margin-top: 4px;
+        text-align: right;
+    }
+
+    .message.sender .message-time {
+        color: rgba(255, 255, 255, 0.7);
+    }
+    .date-separator {
+        text-align: center;
+        margin: 20px 0;
+        position: relative;
+    }
+
+    .date-separator::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        width: 100%;
+        height: 1px;
+        background: #e0e0e0;
+        z-index: 1;
+    }
+
+    .date-separator span {
+        background: #e0e0e0;
+        padding: 5px 15px;
+        border-radius: 15px;
+        font-size: 12px;
+        color: #666;
+        position: relative;
+        z-index: 1;
+    }
+
+        /* Mobile view styling for better readability and usability */
+@media (max-width: 768px) {
+
+    .message {
+        max-width: 70%;
+    }
+    
+    .message-input {
+        font-size: 14px;
+        padding: 12px;
+    }
+    
+    .send-button {
+        padding: 10px 16px;
+        font-size: 14px;
+        border-radius: 12px;
+    }
+    .chat-box{
+        padding-bottom: 68px;
+    }
+    /* Adjusting chat container for fullscreen mobile experience */
+    .widget {
+        width: 100%;
+        height: 92vh;
+        margin: 0;
+        padding: 0;
+    }
+    
+    /* Ensure chat box takes full height and scrolls smoothly */
+    .chat-box {
+        max-height: calc(100vh - 150px);
+        overflow-y: auto;
+    }
+
+    /* Keep footer at the bottom on mobile */
+    .chat-footer {
+        padding: 10px;
+        position: fixed;
+        bottom: 0;
+        width: 96%;
+    }
+    .icon-sidebar{
+        display: none;
+    }
+}
